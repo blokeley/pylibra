@@ -1,0 +1,26 @@
+# File names for Mercurial to ignore
+# Please do not delete
+
+syntax: glob
+
+# crud from hacking and building
+*.pyc
+*.o
+*.orig
+*.rej
+*~
+.project
+.pydevproject
+.nbproject
+.svn
+.coverage
+.cache/
+private/
+
+# output directories
+obj/
+bin/
+Output/
+dist/
+build/
+
