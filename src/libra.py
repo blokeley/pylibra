@@ -4,21 +4,28 @@
 
 import ConfigParser
 import logging
-import logging.config
 import os
+import serial
+
+logger = logging.getLogger(__name__)
+configFile = 'libra.conf'
 
 def readSerialConfig(configFile):
     if not os.path.isfile(configFile):
-        raise Exception(configFile + ' not found.')
+        raise IOError(configFile + ' not found.')
     
     config = ConfigParser.SafeConfigParser()
     config.read(configFile)
-    temp = config.items(serial)
-    return config.items(serial)
+    return config.items('serial')
 
-def startParser():
-    self.__filename = 'data.csv'
-    print 'Parser started'
+
+
+def startParser(settings=readSerialConfig(configFile)):
+    #TODO: implement
+    logger.info('Parser started')
     
 def stopParser():
+    #TODO: implement
+    logger.info('Parser stopped')
     raise NotImplementedError
+

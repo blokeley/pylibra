@@ -9,16 +9,18 @@ import sys
 
 import libra
 
+logger = logging.getLogger(__name__)
+
 def main():
     "Main program: parse command line and process"
     
     # Set up the root logger
-    logging.info('libra started')
+    logger.info('libra started')
     
     argsParser = OptionParser()
     argsParser.add_option('-c', '--config', dest='configFile',
                           help='read settings from configFile', 
-                          default='libra.conf')
+                          default=libra.configFile)
     argsParser.add_option('-o', '--outfile', dest='outFile',
                           help='output data to outFile', 
                           default='data.csv')
@@ -27,7 +29,7 @@ def main():
                           default='logging.conf')
     (options, args) = argsParser.parse_args()
     logging.config.fileConfig(options.logConfig)
-    logging.debug('Options: ' + str(options))
+    logger.debug('Options: ' + str(options))
     
     # Read the settings file
     serialSettings = libra.readSerialConfig(options.configFile)

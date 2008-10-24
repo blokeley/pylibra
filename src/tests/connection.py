@@ -9,7 +9,7 @@ class TestConnection(unittest.TestCase):
     def setUp(self):
         # Open the serial port
         self.readPort = serial.Serial('COM8')
-        self.writePort = serial.Serial('COM9')
+        self.writePort = serial.Serial('COM12')
         # Clear the ports
         self.readPort.flushInput()
         self.writePort.flushOutput()
