@@ -9,15 +9,15 @@ class AbstractParser:
     def __init__(self):
         self.__observers = []
     
-    def addListener(self, callback):
+    def addDataCallback(self, callback):
         if callback:
             self.__observers.append(callback)
             
-    def removeListener(self, callback):
+    def removeDataCallback(self, callback):
         if callback:
             self.__observers.remove(callback)
     
-    def __fireDataEvent(self):
+    def __callDataCallbacks(self):
         if self.__listeners == []:
             logging.warning("No callbacks listening for data.")
             return
