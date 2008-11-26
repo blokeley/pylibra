@@ -64,7 +64,6 @@ class Libra:
         
         config = ConfigParser.SafeConfigParser()
         config.read(configFile)
-        # TODO: Convert list of tuples to dict before returning
         settings = dict(config.items('serial'))
         return settings
     
