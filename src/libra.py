@@ -29,12 +29,14 @@ import serial
 import threading
 import time
 
-class RepeatTimer(threading.Timer):
+class RepeatTimer(threading._Timer):
+    "Timer thread to run the arguments given to the constructor."
     def __init__(self, *args, **kwargs):
-        threading.Timer.__init__(self, *args, **kwargs)
+        threading._Timer.__init__(self, *args, **kwargs)
         self.setDaemon(True)
 
     def run(self):
+        "Runs when instance.start() is called."
         while True:
             self.finished.clear()
             self.finished.wait(self.interval)
@@ -44,7 +46,6 @@ class RepeatTimer(threading.Timer):
                 return
             self.finished.set()
 
-
 class Libra:
     "Main application class that can be run from text ui or gui."
     
@@ -53,18 +54,19 @@ class Libra:
         self.port = None
         self.timer = None
     
-    def readSerialConfig(self, configFile):
+    def readSerialConfig(self, configFile=None):
         "Reads configuration from given file."
         
+        if not configFile: configFile = 'libra.cfg'
         # Try given config file
         if not os.path.isfile(configFile):
-            configFile = 'libra.conf'
-            if not os.path.isfile(configFile):
-                raise IOError(configFile + ' not found.')
+            raise IOError(configFile + ' not found.')
         
         config = ConfigParser.SafeConfigParser()
         config.read(configFile)
-        return config.items('serial')
+        # TODO: Convert list of tuples to dict before returning
+        settings = dict(config.items('serial'))
+        return settings
     
     def poll(self):
          bytes = self.port.inWaiting()
@@ -72,15 +74,17 @@ class Libra:
              data = self.port.read(bytes)
              self.parser.parse(data)
     
-    def startParser(settings=readSerialConfig(configFile)):
+    def startParser(self, settings=None):
         "Starts parser listening for serial data."
+        if not settings: settings = self.readSerialConfig()
         self.__logger.info('Parser starting')
-        self.port = serial.Serial(settings)
+        self.port = serial.Serial(settings['port'])
         parser = parsing.Parser(settings['regex'], callback)
+        # TODO: Change threading.Timer() to RepeatTimer()
         if not self.timer: self.timer = threading.Timer(0.5, poll)
         self.timer.start()
         
-    def stopParser():
-        #TODO: implement
+    def stopParser(self):
+        #TODO: implement stop()
         self.__logger.info('Parser stopping')
         self.timer.cancel()

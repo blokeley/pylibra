@@ -36,20 +36,22 @@ def main():
     argsParser = OptionParser()
     argsParser.add_option('-c', '--config', dest='configFile',
                           help='read settings from configFile', 
-                          default=libra.configFile)
+                          default='libra.cfg')
     argsParser.add_option('-o', '--outfile', dest='outFile',
                           help='output data to outFile', 
                           default='data.csv')
     argsParser.add_option('-l', '--logconfig', dest='logConfig',
                           help='read logging settings from logConfigFile',
-                          default='logging.conf')
+                          default='logging.cfg')
     (options, args) = argsParser.parse_args()
     logging.config.fileConfig(options.logConfig)
     logger.debug('Options: ' + str(options))
     
     # Read the settings file
-    serialSettings = libra.readSerialConfig(options.configFile)
-    libra.startParser(serialSettings)
+    app = libra.Libra()
+    serialSettings = app.readSerialConfig(options.configFile)
+    app.startParser(serialSettings)
     
 if '__main__' == __name__:
     main()
+
