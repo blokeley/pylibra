@@ -49,10 +49,12 @@ class RepeatTimer(threading._Timer):
 class Libra:
     "Main application class that can be run from text ui or gui."
     
-    def __init__(self):
+    def __init__(self, *dataCallbacks):
         self.__logger = logging.getLogger(__name__)
         self.port = None
         self.timer = None
+        assert dataCallbacks, 'Must have at least one callback to do anything'
+        self.dataCallbacks = dataCallbacks
     
     def readSerialConfig(self, configFile=None):
         "Reads configuration from given file."
@@ -73,14 +75,14 @@ class Libra:
              data = self.port.read(bytes)
              self.parser.parse(data)
     
-    def startParser(self, settings=None):
+    def startParser(self, *callbacks, **settings):
         "Starts parser listening for serial data."
         if not settings: settings = self.readSerialConfig()
         self.__logger.info('Parser starting')
         self.port = serial.Serial(settings['port'])
-        parser = parsing.Parser(settings['regex'], callback)
+        parser = parsing.Parser(settings['regex'], self.dataCallbacks)
         # TODO: Change threading.Timer() to RepeatTimer()
-        if not self.timer: self.timer = threading.Timer(0.5, poll)
+        if not self.timer: self.timer = threading.Timer(0.5, self.poll)
         self.timer.start()
         
     def stopParser(self):

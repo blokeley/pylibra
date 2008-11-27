@@ -22,33 +22,37 @@ import logging
 class AbstractParser:
     "Base class of parsers. Should not be initialized itself."
     
-    def __init__(self):
-        self.__observers = []
+    def __init__(self, *callbacks):
+        if callbacks:
+            self.__callbacks = callbacks
+        else:
+            self.__callbacks = []
     
     def addDataCallback(self, callback):
         if callback:
-            self.__observers.append(callback)
+            self.__callbacks.append(callback)
             
     def removeDataCallback(self, callback):
         if callback:
-            self.__observers.remove(callback)
+            self.__callbacks.remove(callback)
     
-    def __callDataCallbacks(self):
-        if self.__listeners == []:
+    def __callDataCallbacks(self, results):
+        if not self.__callbacks:
             logging.warning("No callbacks listening for data.")
             return
-        for callback in self.__listeners:
-            callback()
+        for callback in self.__callbacks:
+            callback(results)
             
     def parse(self, data):
         msg = 'parse() must be overridden by subclasses'
         raise NotImplementedError(msg)
                     
 class Parser(AbstractParser):
-    """Stores incoming data in a buffer and parses it 
-    using a regular expression."""
+    "Stores incoming data in a buffer and parses it using a regular expression."
     
-    def __init__(self, regex, callback = None):
+    def __init__(self, regex, *callbacks):
+        AbstractParser.__init__(self, *callbacks)
+        assert regex
         self.__regex =  regex
         self.__data = ''
                 
@@ -56,6 +60,8 @@ class Parser(AbstractParser):
         "Adds text to buffer, parses it and calls callbacks."
         self.__data += text
         # Use the regex to search for data
+        results = self.__data[1:3]
+        self.__callDataCallbacks(results)
         
     def __str__(self):
         "Returns a string representation of the parser."
@@ -68,9 +74,9 @@ class DummyParser(AbstractParser):
         self.__count = 0
     
     def parse(self):
-        for callback in self.__observers:
+        for callback in self.__callbacks:
             callback([count, count + 1])
     
     def __str__(self):
-        return 'Callbacks: {0}, Count: {1}'.format(self.__observers, self.__count)
+        return 'Callbacks: {0}, Count: {1}'.format(self.__callbacks, self.__count)
     

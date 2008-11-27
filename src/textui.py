@@ -18,14 +18,19 @@
 
 "Entry point for using text (command line) user interface."
 
-from optparse import OptionParser
-import logging
-import logging.config
-import sys
-
 import libra
 
+import logging
+import logging.config
+import OptionParser
+import sys
+import time
+
 logger = logging.getLogger(__name__)
+
+def dataCallback(data):
+    "Called when data is successfully parsed."
+    print time.strftime('%Y-%m-%d %H:%M:%S'), data
 
 def main():
     "Main program: parse command line and process"
@@ -33,7 +38,7 @@ def main():
     # Set up the root logger
     logger.info('libra started')
     
-    argsParser = OptionParser()
+    argsParser = optparse.OptionParser()
     argsParser.add_option('-c', '--config', dest='configFile',
                           help='read settings from configFile', 
                           default='libra.cfg')
@@ -48,7 +53,7 @@ def main():
     logger.debug('Options: ' + str(options))
     
     # Read the settings file
-    app = libra.Libra()
+    app = libra.Libra(dataCallback)
     serialSettings = app.readSerialConfig(options.configFile)
     app.startParser(serialSettings)
     
