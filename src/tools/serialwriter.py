@@ -17,19 +17,12 @@
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
 "Utility to write data to the given serial port."
+import util
 
 import logging
 import optparse
 import serial
-import threading
 import time
-
-def repeat(event, delay, action):
-    'Repeats the given action repeatedly until event is set.'
-    while True:
-        event.wait(delay)       # Wait
-        if event.isSet(): break # Quit repeating if requested
-        action()                # Perform the action
 
 def main():
     logging.getLogger().setLevel(logging.INFO)
@@ -58,8 +51,7 @@ def main():
     
     # Start writing data
     logging.info('Starting writer thread...')
-    event = threading.Event()
-    repeatThread = threading.Thread(target=repeat, args=(event, options.i, write))
+    timer = util.PeriodicTimer(options.i, write, options.d)
     repeatThread.start()
     
     # Listen for quit signal

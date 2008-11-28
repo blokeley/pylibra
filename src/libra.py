@@ -20,6 +20,7 @@
 
 # User modules
 import parsing
+import util
 
 # Standard modules
 import ConfigParser
@@ -28,23 +29,6 @@ import os
 import serial
 import threading
 import time
-
-class RepeatTimer(threading._Timer):
-    "Timer thread to run the arguments given to the constructor."
-    def __init__(self, *args, **kwargs):
-        threading._Timer.__init__(self, *args, **kwargs)
-        self.setDaemon(True)
-
-    def run(self):
-        "Runs when instance.start() is called."
-        while True:
-            self.finished.clear()
-            self.finished.wait(self.interval)
-            if not self.finished.isSet():
-                self.function(*self.args, **self.kwargs)
-            else:
-                return
-            self.finished.set()
 
 class Libra:
     "Main application class that can be run from text ui or gui."
@@ -81,11 +65,12 @@ class Libra:
         self.__logger.info('Parser starting')
         self.port = serial.Serial(settings['port'])
         parser = parsing.Parser(settings['regex'], self.dataCallbacks)
-        # TODO: Change threading.Timer() to RepeatTimer()
+        # TODO: Change threading.Timer() to util.PeriodicTimer()
         if not self.timer: self.timer = threading.Timer(0.5, self.poll)
         self.timer.start()
         
     def stopParser(self):
         #TODO: implement stop()
         self.__logger.info('Parser stopping')
-        self.timer.cancel()
+        self.timer.end()
+
