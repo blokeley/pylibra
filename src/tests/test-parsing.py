@@ -36,12 +36,12 @@ class TestParsing(unittest.TestCase):
     
     def testInitialCallback(self):
         self.parser = parsing.Parser(self.regex, callback)
-        self.assertTrue([callback], self.parser._Parser__listeners)
+        self.assertTrue([callback], self.parser._callbacks)
         
     def testAddCallback(self):
-        self.assertEqual([], self.parser._Parser__listeners)
-        self.parser.addListener(callback)
-        self.assertEqual([callback], self.parser._Parser__listeners)
+        self.assertEqual([], self.parser._callbacks)
+        self.parser.addDataCallback(callback)
+        self.assertEqual([callback], self.parser._callbacks)
         
 if '__main__' == __name__:
     unittest.main()

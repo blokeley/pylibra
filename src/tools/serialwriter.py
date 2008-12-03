@@ -16,8 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-"Utility to write data to the given serial port."
-import util
+"""Utility to write data to the given serial port."""
+
+import os
+import sys
+# Fiddle module loading path to get utils
+sys.path.append(os.path.dirname(os.getcwd()))
+import utils
 
 import logging
 import optparse
@@ -39,28 +44,30 @@ def main():
     # Get the serial port
     port = serial.Serial(port=options.p, baudrate=options.b)
     logging.info('Using port: %s' % port.portstr)
+    port.open()
     
-    def write():
-        'Writes data to the given port.'
-        if not port.isOpen(): port.open()
-        try:
-            print '%s: %s' % (time.strftime('%S'), options.d )
-            #port.write(options.d)
-        finally:
-            port.close()
+    def spew():
+        port.write(options.d)
     
     # Start writing data
     logging.info('Starting writer thread...')
-    timer = util.PeriodicTimer(options.i, write, options.d)
-    repeatThread.start()
+    timer = utils.PeriodicTimer(options.i, spew)
+    timer.start()
+    
+    out = utils.FlushFile(sys.stdout)
+    out.write('Type q to quit:')
     
     # Listen for quit signal
-    time.sleep(20)
-    event.set()                 # Stop the repeater
-    logging.info('Waiting for writer thread to stop...')
-    repeatThread.join()
+    while(True):
+        command = sys.stdin.readline()
+        if command[0] == 'q':
+            out.write('Quit command received.')
+            break
+        time.sleep(1)
+    
+    timer.end()                 # Stop the timer
+    port.close()
     logging.info('Quitting...')
     
 if __name__ == '__main__':
     main()
-

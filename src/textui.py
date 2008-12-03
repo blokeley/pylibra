@@ -57,6 +57,15 @@ def main():
     serialSettings = app.readSerialConfig(options.configFile)
     app.startParser(serialSettings)
     
+    while (True):
+        print 'Type q to quit:',
+        input = sys.stdin.readline()
+        if input[0] == 'q':
+            print 'Quitting..,'
+            app.stopParser()
+            break
+        time.sleep(2)
+    
 if '__main__' == __name__:
     main()
 

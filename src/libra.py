@@ -20,7 +20,7 @@
 
 # User modules
 import parsing
-import util
+import utils
 
 # Standard modules
 import ConfigParser
@@ -55,6 +55,7 @@ class Libra:
     
     def poll(self):
          bytes = self.port.inWaiting()
+         self.__logger.debug('%d bytes waiting' % bytes)
          if bytes: 
              data = self.port.read(bytes)
              self.parser.parse(data)
@@ -64,13 +65,15 @@ class Libra:
         if not settings: settings = self.readSerialConfig()
         self.__logger.info('Parser starting')
         self.port = serial.Serial(settings['port'])
-        parser = parsing.Parser(settings['regex'], self.dataCallbacks)
-        # TODO: Change threading.Timer() to util.PeriodicTimer()
-        if not self.timer: self.timer = threading.Timer(0.5, self.poll)
+        self.parser = parsing.Parser(settings['regex'], self.dataCallbacks)
+        
+        if not self.timer: 
+            self.timer = utils.PeriodicTimer(1, self.poll)
+        self.__logger.debug('Starting timer...')
         self.timer.start()
+        self.__logger.debug('Timer started.')
         
     def stopParser(self):
         #TODO: implement stop()
         self.__logger.info('Parser stopping')
         self.timer.end()
-

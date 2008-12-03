@@ -24,23 +24,23 @@ class AbstractParser:
     
     def __init__(self, *callbacks):
         if callbacks:
-            self.__callbacks = callbacks
+            self._callbacks = list(callbacks)
         else:
-            self.__callbacks = []
+            self._callbacks = []
     
     def addDataCallback(self, callback):
         if callback:
-            self.__callbacks.append(callback)
+            self._callbacks.append(callback)
             
     def removeDataCallback(self, callback):
         if callback:
-            self.__callbacks.remove(callback)
+            self._callbacks.remove(callback)
     
-    def __callDataCallbacks(self, results):
-        if not self.__callbacks:
+    def _callDataCallbacks(self, results):
+        if not self._callbacks:
             logging.warning("No callbacks listening for data.")
             return
-        for callback in self.__callbacks:
+        for callback in self._callbacks:
             callback(results)
             
     def parse(self, data):
@@ -53,30 +53,30 @@ class Parser(AbstractParser):
     def __init__(self, regex, *callbacks):
         AbstractParser.__init__(self, *callbacks)
         assert regex
-        self.__regex =  regex
-        self.__data = ''
+        self._regex =  regex
+        self._data = ''
                 
     def parse(self, text):
         "Adds text to buffer, parses it and calls callbacks."
-        self.__data += text
+        self._data += text
         # Use the regex to search for data
-        results = self.__data[1:3]
-        self.__callDataCallbacks(results)
+        results = self._data[1:3]
+        self._callDataCallbacks(results)
         
     def __str__(self):
         "Returns a string representation of the parser."
-        return 'Data: {0}, Callbacks{1}'.format(self.__data, self.__listeners)
+        return 'Data: {0}, Callbacks{1}'.format(self._data, self._callbacks)
             
 class DummyParser(AbstractParser):
     "Creates dummy serial events"
     
     def __init__(self):
-        self.__count = 0
+        self._count = 0
     
     def parse(self):
-        for callback in self.__callbacks:
+        for callback in self._callbacks:
             callback([count, count + 1])
     
     def __str__(self):
-        return 'Callbacks: {0}, Count: {1}'.format(self.__callbacks, self.__count)
+        return 'Callbacks: %s, Count: $d' % (self._callbacks, self._count)
     

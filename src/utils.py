@@ -18,6 +18,7 @@
 
 'Utility classes and functions.'
 
+import logging
 import sys
 import threading
 import time
@@ -54,11 +55,13 @@ class PeriodicTimer(threading.Thread):
         seconds have passed.
         """
         threading.Thread.__init__(self)
+        self.setDaemon(True)
         self.interval = interval
         self.function = function
         self.args = args
         self.kwargs = kwargs
         self.finished = threading.Event()
+        self.__logger = logging.getLogger(__name__)
 
     def end(self):
         """
@@ -76,6 +79,7 @@ class PeriodicTimer(threading.Thread):
             self.finished.wait(self.interval)
             if self.finished.isSet():
                 break
+            self.__logger.debug('Calling %s' % str(self.function))
             self.function(*self.args, **self.kwargs)
 
 class FlushFile(object):
