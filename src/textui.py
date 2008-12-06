@@ -19,14 +19,16 @@
 "Entry point for using text (command line) user interface."
 
 import libra
+import utils
 
 import logging
 import logging.config
 import optparse
 import sys
-import time
 
 logger = logging.getLogger(__name__)
+
+helpMessage = 'Type q to quit:'
 
 def dataCallback(data):
     "Called when data is successfully parsed."
@@ -38,6 +40,7 @@ def main():
     # Set up the root logger
     logger.info('libra started')
     
+    # Parse the command line options
     argsParser = optparse.OptionParser()
     argsParser.add_option('-c', '--config', dest='configFile',
                           help='read settings from configFile', 
@@ -55,16 +58,21 @@ def main():
     # Read the settings file
     app = libra.Libra(dataCallback)
     serialSettings = app.readSerialConfig(options.configFile)
+    
+    # Start the parser
     app.startParser(serialSettings)
     
-    while (True):
-        print 'Type q to quit:',
-        input = sys.stdin.readline()
-        if input[0] == 'q':
-            print 'Quitting..,'
-            app.stopParser()
-            break
-        time.sleep(2)
+    # Print a message on how to quit
+    out = utils.FlushFile(sys.stdout)
+    out.write(helpMessage)
+    
+    # Block until quit command is received
+    while (sys.stdin.readline()[0] != 'q'):
+        out.write(helpMessage)
+    
+    # Stop the parser
+    app.stopParser()
+    out.write('Quitting.')
     
 if '__main__' == __name__:
     main()
