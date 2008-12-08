@@ -16,7 +16,6 @@
 
 from __future__ import with_statement
 import re
-import threading
 import logging
 
 class AbstractParser:
@@ -59,7 +58,7 @@ class Parser(AbstractParser):
     def parse(self, text):
         "Adds text to buffer, parses it and calls callbacks."
         self._data += text
-        # Use the regex to search for data
+        #TODO: Use the regex to search for data
         results = self._data[1:3]
         self._callDataCallbacks(results)
         

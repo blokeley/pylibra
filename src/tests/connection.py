@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest, serial, logging, time
+import unittest 
+import serial
+import time
 
 class TestConnection(unittest.TestCase):
     "Quick test to check serial port."

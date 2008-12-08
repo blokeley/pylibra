@@ -17,7 +17,6 @@
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-import logging
 import parsing
 
 def callback(arg):

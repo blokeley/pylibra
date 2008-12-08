@@ -19,9 +19,7 @@
 'Utility classes and functions.'
 
 import logging
-import sys
 import threading
-import time
 
 class PeriodicTimer(threading.Thread):
     """

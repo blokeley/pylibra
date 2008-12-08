@@ -27,8 +27,6 @@ import ConfigParser
 import logging
 import os
 import serial
-import threading
-import time
 
 class Libra:
     "Main application class that can be run from text ui or gui."
