@@ -72,6 +72,5 @@ class Libra:
         self.__logger.debug('Timer started.')
         
     def stopParser(self):
-        #TODO: implement stop()
         self.__logger.info('Parser stopping')
         self.timer.end()

@@ -19,16 +19,17 @@
 import unittest
 import parsing
 
-def callback(arg):
-    "Dummy method to return the argument."
-    return arg
+def callback(data):
+    global result
+    result = data
 
 class TestParsing(unittest.TestCase):
     "Tests parsing classes and functions."
     
     def setUp(self):
-        self.regex = '\\d.\\d'
+        self.regex = r'\d+\.\d+'
         self.parser = parsing.Parser(self.regex)
+        self.input = 'xx12.34xx'
     
     def tearDown(self):
         self.parser = None
@@ -41,6 +42,11 @@ class TestParsing(unittest.TestCase):
         self.assertEqual([], self.parser._callbacks)
         self.parser.addDataCallback(callback)
         self.assertEqual([callback], self.parser._callbacks)
-        
+
+    def testCallCallback(self):
+        self.parser.addDataCallback(callback)
+        self.parser.parse(self.input)
+        self.assertEqual(['12.34'], result)
+
 if '__main__' == __name__:
     unittest.main()

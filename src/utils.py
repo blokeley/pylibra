@@ -92,6 +92,7 @@ class FlushFile(object):
     def __init__(self, f): self.f = f
         
     def write(self, msg):
+        'Writes msg to file almost immediately'
         self.f.write(msg)
         self.f.flush()
 

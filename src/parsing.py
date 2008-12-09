@@ -28,12 +28,12 @@ class AbstractParser:
             self._callbacks = []
     
     def addDataCallback(self, callback):
-        if callback:
-            self._callbacks.append(callback)
+        'Adds callback to list of functions to call.'
+        if callback: self._callbacks.append(callback)
             
     def removeDataCallback(self, callback):
-        if callback:
-            self._callbacks.remove(callback)
+        'Removes callback from list of functions to call'
+        if callback: self._callbacks.remove(callback)
     
     def _callDataCallbacks(self, results):
         if not self._callbacks:
@@ -58,13 +58,13 @@ class Parser(AbstractParser):
     def parse(self, text):
         "Adds text to buffer, parses it and calls callbacks."
         self._data += text
-        #TODO: Use the regex to search for data
-        results = self._data[1:3]
+        results = re.compile(self._regex).findall(self._data)
+        #TODO: Remove the successful results from the data
         self._callDataCallbacks(results)
         
     def __str__(self):
         "Returns a string representation of the parser."
-        return 'Data: {0}, Callbacks{1}'.format(self._data, self._callbacks)
+        return 'Data: %s, Callbacks: %s' % (self._data, self._callbacks)
             
 class DummyParser(AbstractParser):
     "Creates dummy serial events"

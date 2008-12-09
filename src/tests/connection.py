@@ -27,8 +27,10 @@ class TestConnection(unittest.TestCase):
     
     def setUp(self):
         # Open the serial port
-        self.readPort = serial.Serial('/dev/ttyUSB0')
-        self.writePort = serial.Serial('/dev/ttyUSB1')
+        #self.readPort = serial.Serial('/dev/ttyUSB0')  # Linux
+        #self.writePort = serial.Serial('/dev/ttyUSB1') # Linux
+        self.readPort = serial.Serial('COM8')   # Windows
+        self.writePort = serial.Serial('COM9')  # Windows
         # Clear the ports
         self.readPort.flushInput()
         self.writePort.flushOutput()

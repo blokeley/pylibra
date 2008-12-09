@@ -43,14 +43,15 @@ def main():
     
     # Get the serial port
     port = serial.Serial(port=options.p, baudrate=options.b)
-    logging.info('Using port: %s' % port.portstr)
+    logging.debug('Using port: %s' % port.portstr)
     port.open()
     
     def spew():
+        logging.debug('Writing %s' % options.d)
         port.write(options.d)
     
     # Start writing data
-    logging.info('Starting writer thread...')
+    logging.debug('Starting writer thread...')
     timer = utils.PeriodicTimer(options.i, spew)
     timer.start()
     
@@ -58,16 +59,14 @@ def main():
     out.write('Type q to quit:')
     
     # Listen for quit signal
-    while(True):
-        command = sys.stdin.readline()
-        if command[0] == 'q':
-            out.write('Quit command received.')
-            break
-        time.sleep(1)
-    
+    while(sys.stdin.readline()[0] != 'q'):
+        out.write('Type q to quit:')
+
+    # Quit
+    out.write('Quitting...')
     timer.end()                 # Stop the timer
+    time.sleep(2 * options.i)
     port.close()
-    logging.info('Quitting...')
     
 if __name__ == '__main__':
     main()
