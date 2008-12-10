@@ -28,7 +28,7 @@ import logging
 import os
 import serial
 
-class Libra:
+class Libra(object):
     "Main application class that can be run from text ui or gui."
     
     def __init__(self, *dataCallbacks):

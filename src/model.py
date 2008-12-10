@@ -16,7 +16,7 @@
 
 "Abstract tabular data model."
 
-class Model:
+class Model(object):
     "Model of tabular data."
     
     def __init__(self, columns=None):

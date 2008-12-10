@@ -16,7 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-"Serial port functions."
+"""Serial port functions.
+
+#TODO: Refactor to use utils.PeriodicTimer()
+"""
 
 from __future__ import with_statement
 import copy
@@ -50,7 +53,7 @@ class SerialReader(threading.Thread):
         if not callbacks:
             logger.warning('Serial port has no observers')
         else:
-            # Use slicing to make a copy
+            # Copy the callbacks
             self.__callbacks = copy.deepcopy(callbacks)
         
         if not settings:
@@ -59,7 +62,7 @@ class SerialReader(threading.Thread):
         self.settings = copy.deepcopy(settings)
     
     def __checkSerial(self):
-        # ONLY CALL WHILST HOLDING self.__lock
+        'ONLY CALL WHILST HOLDING self.__lock'
         try:
             if not self.port:
                 self.port = serial.Serial(**self.settings)

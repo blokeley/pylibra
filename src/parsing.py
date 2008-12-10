@@ -18,7 +18,7 @@ from __future__ import with_statement
 import re
 import logging
 
-class AbstractParser:
+class AbstractParser(object):
     "Base class of parsers. Should not be initialized itself."
     
     def __init__(self, *callbacks):
