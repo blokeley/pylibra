@@ -67,7 +67,7 @@ def main():
     out.write(helpMessage)
     
     # Block until quit command is received
-    while (sys.stdin.readline()[0] != 'q'):
+    while sys.stdin.readline()[0] != 'q':
         out.write(helpMessage)
     
     # Stop the parser

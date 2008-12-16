@@ -62,7 +62,13 @@ class Libra(object):
         "Starts parser listening for serial data."
         if not settings: settings = self.readSerialConfig()
         self.__logger.info('Parser starting')
-        self.port = serial.Serial(settings['port'])
+
+        try:
+            self.port = serial.Serial(settings['port'])
+        except serial.SerialException, msg:
+            self.__logger.warning(msg)
+            return
+        
         self.parser = parsing.Parser(settings['regex'], self.dataCallbacks)
         
         if not self.timer: 
@@ -73,4 +79,4 @@ class Libra(object):
         
     def stopParser(self):
         self.__logger.info('Parser stopping')
-        self.timer.end()
+        if self.timer: self.timer.end()
