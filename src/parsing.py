@@ -48,19 +48,28 @@ class AbstractParser(object):
                     
 class Parser(AbstractParser):
     "Stores incoming data in a buffer and parses it using a regular expression."
-    
+
+    MAXBUFFERSIZE = 10240
+
     def __init__(self, regex, *callbacks):
         AbstractParser.__init__(self, *callbacks)
         assert regex
-        self._regex =  regex
-        self._data = ''
+        self._pattern = re.compile(regex)
+        self._buffer = ''
                 
     def parse(self, text):
         "Adds text to buffer, parses it and calls callbacks."
-        self._data += text
-        results = re.compile(self._regex).findall(self._data)
-        #TODO: Remove the successful results from the data
-        self._callDataCallbacks(results)
+        self._buffer += text
+        results = self._pattern.findall(self._buffer)
+        if results:
+            # Tell the callbacks about new data
+            self._callDataCallbacks(results)
+            # Remove the data from the buffer
+            self._buffer = self._pattern.sub('', self._buffer)
+
+        # If the buffer is getting too long, slice off the first half
+        if len(self._buffer) > Parser.MAXBUFFERSIZE:
+            self._buffer = self._buffer[(Parser.MAXBUFFERSIZE/2):]
         
     def __str__(self):
         "Returns a string representation of the parser."

@@ -31,7 +31,8 @@ def main():
     (r'.+(\d\.\d)+.+', 'xx1.2xx xx3.4xx', '1.2'),
     (r'ab', 'abab', 'abab'),
     (r'\d\.\d', 'xx1.2xx xx3.4xx', '1.2 3.4'),
-    (r'\d+\.\d+', 'xx12.34xx', '')
+    (r'\d+\.\d+', 'xx12.34xx', ''),
+    (r'(ST|OL)\s*(\d+\.\d+)\s*(\S?)', 'ST 12.34 g', '')
     ]
 
     for regex, text, expected in tests:

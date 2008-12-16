@@ -16,8 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 import parsing
+
+import unittest
 
 def callback(data):
     global result
@@ -27,12 +28,13 @@ class TestParsing(unittest.TestCase):
     "Tests parsing classes and functions."
     
     def setUp(self):
-        self.regex = r'\d+\.\d+'
+        self.regex = r'(ST|OL)\s*(\d+\.\d+)\s*(\S?)'
         self.parser = parsing.Parser(self.regex)
-        self.input = 'xx12.34xx'
+        self.input = 'x ST 12.34 g x'
     
     def tearDown(self):
         self.parser = None
+        result = None
     
     def testInitialCallback(self):
         self.parser = parsing.Parser(self.regex, callback)
@@ -46,7 +48,22 @@ class TestParsing(unittest.TestCase):
     def testCallCallback(self):
         self.parser.addDataCallback(callback)
         self.parser.parse(self.input)
-        self.assertEqual(['12.34'], result)
+        self.assertEqual([('ST', '12.34', 'g')], result)
+
+    def testMultipleCalls(self):
+        self.parser.addDataCallback(callback)
+        self.parser.parse(self.input)
+        self.assertEqual([('ST', '12.34', 'g')], result)
+        self.parser.parse('ST 12.35 g')
+        self.assertEqual([('ST', '12.35', 'g')], result)
+
+#    def testBufferClearing(self):
+#        self.parser.addDataCallback(callback)
+#        self.parser.parse('nonsense')
+#        self.parser.parse(self.input)
+#        self.parser.parse('nonsense')
+#        self.parser.parse(self.input)
+#        self.assertEqual([('ST', '12.34', 'g'), ('ST', '12.34', 'g')], result)
 
 if '__main__' == __name__:
     unittest.main()
