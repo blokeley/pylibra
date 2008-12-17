@@ -27,12 +27,12 @@ import optparse
 import sys
 
 logger = logging.getLogger(__name__)
-
 helpMessage = 'Type q to quit:'
+out = utils.FlushFile(sys.stdout)
 
 def dataCallback(data):
     "Called when data is successfully parsed."
-    print time.strftime('%Y-%m-%d %H:%M:%S'), data
+    out.write(time.strftime('%Y-%m-%d %H:%M:%S'), data)
 
 def main():
     "Main program: parse command line and process"
@@ -43,15 +43,15 @@ def main():
     # Parse the command line options
     argsParser = optparse.OptionParser()
     argsParser.add_option('-c', '--config', dest='configFile',
-                          help='read settings from configFile', 
+                          help='read settings from configFile (%default)',
                           default='libra.cfg')
     argsParser.add_option('-o', '--outfile', dest='outFile',
-                          help='output data to outFile', 
+                          help='output data to outFile (%default)',
                           default='data.csv')
     argsParser.add_option('-l', '--logconfig', dest='logConfig',
-                          help='read logging settings from logConfigFile',
+                          help='read logging settings from file (%default)',
                           default='logging.cfg')
-    (options, args) = argsParser.parse_args()
+    options, args = argsParser.parse_args()
     logging.config.fileConfig(options.logConfig)
     logger.debug('Options: ' + str(options))
     

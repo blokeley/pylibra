@@ -64,6 +64,7 @@ class Libra(object):
         self.__logger.info('Parser starting')
 
         try:
+            # TODO: Set the baud rate etc.
             self.port = serial.Serial(settings['port'])
         except serial.SerialException, msg:
             self.__logger.warning(msg)
@@ -80,3 +81,7 @@ class Libra(object):
     def stopParser(self):
         self.__logger.info('Parser stopping')
         if self.timer: self.timer.end()
+        if self.port:
+            if self.port.isOpen():
+                self.port.close()
+

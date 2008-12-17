@@ -53,7 +53,7 @@ class PeriodicTimer(threading.Thread):
         seconds have passed.
         """
         threading.Thread.__init__(self)
-        self.setDaemon(True)
+        self.setDaemon(True) # Do not keep program running
         self.interval = interval
         self.function = function
         self.args = args
