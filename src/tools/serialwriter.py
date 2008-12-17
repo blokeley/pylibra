@@ -34,11 +34,11 @@ def main():
     
     # Parse the command line arguments
     argsParser = optparse.OptionParser()
-    argsParser.add_option('-p', help='serial port name', default=0)
-    argsParser.add_option('-b', help='baudrate', default=2400)
-    argsParser.add_option('-i', help='interval', default=1)
-    argsParser.add_option('-d', help='data to send', default='ST 1.23g OK')
-    (options, args) = argsParser.parse_args()
+    argsParser.add_option('-p', help='serial port name (%default)', default=0)
+    argsParser.add_option('-b', help='baudrate (%default)', default=2400)
+    argsParser.add_option('-i', help='interval (%default)', default=1)
+    argsParser.add_option('-d', help='data to send (%default)', default='ST 1.23g OK')
+    options, args = argsParser.parse_args()
     logging.debug(options)
     
     # Get the serial port
