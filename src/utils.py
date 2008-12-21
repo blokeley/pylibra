@@ -96,3 +96,6 @@ class FlushFile(object):
         self.f.write(msg)
         self.f.flush()
 
+    def flush(self):
+        'Flush exposed for libraries such as logging that explicitly flush'
+        self.f.flush()
