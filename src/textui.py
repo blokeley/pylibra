@@ -28,15 +28,17 @@ import sys
 
 logger = logging.getLogger(__name__)
 helpMessage = 'Type q to quit:'
-out = utils.FlushFile(sys.stdout)
 
 def dataCallback(data):
     "Called when data is successfully parsed."
-    out.write(time.strftime('%Y-%m-%d %H:%M:%S'), data)
+    print time.strftime('%Y-%m-%d %H:%M:%S'), data
 
 def main():
     "Main program: parse command line and process"
-    
+
+    # Make stdout write almost immediately
+    sys.stdout = utils.FlushFile(sys.stdout)
+
     # Set up the root logger
     logger.info('libra started')
     
@@ -63,16 +65,15 @@ def main():
     app.startParser(serialSettings)
     
     # Print a message on how to quit
-    out = utils.FlushFile(sys.stdout)
-    out.write(helpMessage)
+    print helpMessage
     
     # Block until quit command is received
     while sys.stdin.readline()[0] != 'q':
-        out.write(helpMessage)
+        print helpMessage
     
     # Stop the parser
     app.stopParser()
-    out.write('Quitting.')
+    print 'Quitting.'
     
 if '__main__' == __name__:
     main()
