@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Utility to write data to the given serial port."""
+'Utility to write data to the given serial port.'
 
 import os
 import sys
@@ -30,14 +30,21 @@ import serial
 import time
 
 def main():
+    # Set logging level
     logging.getLogger().setLevel(logging.INFO)
+
+    # Flush stdout immediately after writing
+    sys.stdout = utils.FlushFile(sys.stdout)
+
+    # Use line ending for current system
+    DEFAULT_DATA = 'ST 1.23g OK' + os.linesep
     
     # Parse the command line arguments
     argsParser = optparse.OptionParser()
     argsParser.add_option('-p', help='serial port name (%default)', default=0)
     argsParser.add_option('-b', help='baudrate (%default)', default=2400)
     argsParser.add_option('-i', help='interval (%default)', default=1)
-    argsParser.add_option('-d', help='data to send (%default)', default='ST 1.23g OK')
+    argsParser.add_option('-d', help='data to send (%default)', default=DEFAULT_DATA)
     options, args = argsParser.parse_args()
     logging.debug(options)
     
@@ -55,17 +62,16 @@ def main():
     timer = utils.PeriodicTimer(options.i, spew)
     timer.start()
     
-    out = utils.FlushFile(sys.stdout)
-    out.write('Type q to quit:')
+    print 'Type q to quit:'
     
     # Listen for quit signal
     while(sys.stdin.readline()[0] != 'q'):
-        out.write('Type q to quit:')
+        print 'Type q to quit:'
 
     # Quit
-    out.write('Quitting...')
+    print 'Quitting...'
     timer.end()                 # Stop the timer
-    time.sleep(2 * options.i)
+    time.sleep(1.1 * options.i)
     port.close()
     
 if __name__ == '__main__':
