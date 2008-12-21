@@ -30,6 +30,9 @@ import serial
 
 class Libra(object):
     "Main application class that can be run from text ui or gui."
+
+    # Interval between polls in seconds
+    SERIALPOLLINTERVAL = 1
     
     def __init__(self, *dataCallbacks):
         self.__logger = logging.getLogger(__name__)
@@ -64,8 +67,12 @@ class Libra(object):
         self.__logger.info('Parser starting')
 
         try:
-            # TODO: Set the baud rate etc.
-            self.port = serial.Serial(settings['port'])
+            # Set up the serial port
+            self.port = serial.Serial(settings['port'],
+            int(settings['baudrate']),
+            int(settings['bytesize']),
+            settings['parity'],
+            int(settings['stopbits']))
         except serial.SerialException, msg:
             self.__logger.warning(msg)
             return
@@ -73,10 +80,9 @@ class Libra(object):
         self.parser = parsing.Parser(settings['regex'], self.dataCallbacks)
         
         if not self.timer: 
-            self.timer = utils.PeriodicTimer(1, self.poll)
+            self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
         self.__logger.debug('Starting timer...')
         self.timer.start()
-        self.__logger.debug('Timer started.')
         
     def stopParser(self):
         self.__logger.info('Parser stopping')
