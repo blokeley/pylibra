@@ -19,6 +19,7 @@
 'Utility classes and functions.'
 
 import logging
+import Queue
 import threading
 
 class PeriodicTimer(threading.Thread):
@@ -98,3 +99,26 @@ class FlushFile(object):
     def flush(self):
         'Flush exposed for libraries such as logging that explicitly flush'
         self.f.flush()
+
+class Serializer(Threading.Thread):
+    '''Serializes all calls to apply() on to 1 thread.
+
+    See "Python in a Nutshell" 2nd ed., Alex Martelli, p285 for more information.
+    '''
+
+    def __init__(self, **kwargs):
+        Theading.Thread.__init__(self, **kwargs)
+        self.setDaemon(True)
+        self.workRequestQueue = Queue.Queue()
+        self.resultQueue = Queue.Queue()
+        self.start()
+
+    def apply(self, callable *args, **kwargs):
+        'Called by other threads as callable would be.'
+        self.workRequestQueue.put((callable, args, kwargs))
+        return self.resultQueue.get()
+
+    def run(self):
+        while True:
+            callable, args, kwargs = self.workRequestQueue.get()
+            self.resultQueue.put(callable(*args, **kwargs))
