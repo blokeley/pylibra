@@ -77,7 +77,6 @@ class PeriodicTimer(threading.Thread):
             self.finished.wait(self.interval)
             if self.finished.isSet():
                 break
-            self.__logger.debug('Calling %s' % str(self.function))
             self.function(*self.args, **self.kwargs)
 
 class FlushFile(object):
