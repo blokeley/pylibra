@@ -25,6 +25,7 @@ import logging
 import logging.config
 import optparse
 import sys
+import time
 
 logger = logging.getLogger(__name__)
 helpMessage = 'Type q to quit:'

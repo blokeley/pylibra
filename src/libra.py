@@ -29,12 +29,17 @@ import os
 import serial
 
 class Libra(object):
-    "Main application class that can be run from text ui or gui."
+    'Main application class that can be run from text ui or gui.'
 
     # Interval between polls in seconds
     SERIALPOLLINTERVAL = 1
     
-    def __init__(self, *dataCallbacks):
+    def __init__(self, dataCallbacks):
+        '''Creates the controller.
+        
+        dataCallbacks is a tuple containing functions to call if data is
+        received.
+        ''' 
         self.__logger = logging.getLogger(__name__)
         self.port = None
         self.timer = None
@@ -42,7 +47,7 @@ class Libra(object):
         self.dataCallbacks = dataCallbacks
     
     def readSerialConfig(self, configFile=None):
-        "Reads configuration from given file."
+        'Reads configuration from given file.'
         
         if not configFile: configFile = 'libra.cfg'
         # Try given config file
@@ -55,6 +60,7 @@ class Libra(object):
         return settings
     
     def poll(self):
+         'Polls the serial port for data and calls the parser if any is present.'
          bytes = self.port.inWaiting()
          self.__logger.debug('%d bytes waiting' % bytes)
          if bytes: 
@@ -62,7 +68,7 @@ class Libra(object):
              self.parser.parse(data)
     
     def startParser(self, *callbacks, **settings):
-        "Starts parser listening for serial data."
+        'Starts parser listening for serial data.'
         if not settings: settings = self.readSerialConfig()
         self.__logger.info('Parser starting')
 
@@ -85,6 +91,7 @@ class Libra(object):
         self.timer.start()
         
     def stopParser(self):
+        'Stops the parser'
         self.__logger.info('Parser stopping')
         if self.timer: self.timer.end()
         if self.port:

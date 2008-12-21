@@ -61,6 +61,7 @@ class Parser(AbstractParser):
         "Adds text to buffer, parses it and calls callbacks."
         self._buffer += text
         results = self._pattern.findall(self._buffer)
+
         if results:
             # Tell the callbacks about new data
             self._callDataCallbacks(results)
