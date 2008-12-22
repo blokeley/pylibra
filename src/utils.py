@@ -16,14 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-'Utility classes and functions.'
+'Utility classes.'
 
-import logging
 import Queue
 import threading
 
 class PeriodicTimer(threading.Thread):
-    """
+    '''
     Periodically call a function.
 
     PeriodicTimers are, like threads, started by calling their start()
@@ -46,49 +45,48 @@ class PeriodicTimer(threading.Thread):
         t = PeriodicTimer(5, hello)
         t.start()    # "Hi there!" will be printed every five seconds.
         
-    """
+    '''
     def __init__(self, interval, function, *args, **kwargs):
-        """
+        '''
         Create a PeriodicTimer that will repeatedly call function with
         arguments args and keyword arguments kwargs, after interval
         seconds have passed.
-        """
+        '''
         threading.Thread.__init__(self)
         self.setDaemon(True) # Do not keep program running
-        self.interval = interval
+        self.__interval = interval
         self.function = function
         self.args = args
         self.kwargs = kwargs
-        self.finished = threading.Event()
-        self.__logger = logging.getLogger(__name__)
+        self.__finished = threading.Event()
 
     def end(self):
-        """
+        '''
         Make a best effort attempt to stop the PeriodicTimer.
 
         If the thread is currently executing the function, this effort
         may not immidiately succeed. The PeriodicTimer is then stopped
         when execution returns from the function. If the function
         never returns, the thread will not be stopped.
-        """
-        self.finished.set()
+        '''
+        self.__finished.set()
 
     def run(self):
         while True:
-            self.finished.wait(self.interval)
-            if self.finished.isSet():
+            self.__finished.wait(self.__interval)
+            if self.__finished.isSet():
                 break
             self.function(*self.args, **self.kwargs)
 
 class FlushFile(object):
-    """Wrapper around any file that immediately flushes after write().
+    '''Wrapper around any file that immediately flushes after write().
     
     For example:
     
         import sys
         sys.stdout = FlushFile(sys.stdout)
         print 'hello' # Prints almost immediately
-    """
+    '''
     def __init__(self, f): self.f = f
         
     def write(self, msg):
@@ -100,25 +98,37 @@ class FlushFile(object):
         'Flush exposed for libraries such as logging that explicitly flush'
         self.f.flush()
 
-class Serializer(Threading.Thread):
-    '''Serializes all calls to apply() on to 1 thread.
+class Serializer(threading.Thread):
+    '''Serializes all calls to execute() on to 1 thread.
 
-    See "Python in a Nutshell" 2nd ed., Alex Martelli, p285 for more information.
+    See "Python in a Nutshell" 2nd ed., Alex Martelli,
+    p285 for more information.
     '''
-
     def __init__(self, **kwargs):
-        Theading.Thread.__init__(self, **kwargs)
+        threading.Thread.__init__(self, **kwargs)
         self.setDaemon(True)
-        self.workRequestQueue = Queue.Queue()
-        self.resultQueue = Queue.Queue()
+        self.__workRequestQueue = Queue.Queue()
+        self.__resultQueue = Queue.Queue()
+        self.__finished = threading.Event()
         self.start()
 
-    def apply(self, callable *args, **kwargs):
+    def execute(self, callable, *args, **kwargs):
         'Called by other threads as callable would be.'
-        self.workRequestQueue.put((callable, args, kwargs))
-        return self.resultQueue.get()
+        self.__workRequestQueue.put((callable, args, kwargs))
+        return self.__resultQueue.get()
+
+    def end(self):
+        '''
+        Make a best effort attempt to stop the Serializer.
+
+        If the thread is currently executing the function, this effort
+        may not immidiately succeed. The Serializer is then stopped
+        when execution returns from the function. If the function
+        never returns, the thread will not be stopped.
+        '''
+        self.__finished.set()
 
     def run(self):
-        while True:
-            callable, args, kwargs = self.workRequestQueue.get()
-            self.resultQueue.put(callable(*args, **kwargs))
+        while not self.__finished.isSet():
+            callable, args, kwargs = self.__workRequestQueue.get()
+            self.__resultQueue.put(callable(*args, **kwargs))
