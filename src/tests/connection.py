@@ -16,12 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-import unittest
 import serial
 import time
+import unittest
+
+WAIT = 0.05 # Delay for serial comms in seconds
 
 class TestConnection(unittest.TestCase):
-    "Quick test to check serial port."
+    'Quick test to check serial port.'
 
     _msg = 'Hello!'
 
@@ -30,7 +32,7 @@ class TestConnection(unittest.TestCase):
         #self.readPort = serial.Serial('/dev/ttyUSB0')  # Linux
         #self.writePort = serial.Serial('/dev/ttyUSB1') # Linux
         self.readPort = serial.Serial('COM8')   # Windows
-        self.writePort = serial.Serial('COM9')  # Windows
+        self.writePort = serial.Serial('COM12')  # Windows
         # Clear the ports
         self.readPort.flushInput()
         self.writePort.flushOutput()
@@ -46,14 +48,14 @@ class TestConnection(unittest.TestCase):
 
     def testReadWrite(self):
         self.writePort.write(self._msg)
-        time.sleep(0.05) # Wait for serial port
+        time.sleep(WAIT) # Wait for serial port
         port = self.readPort
         incoming = port.read(port.inWaiting())
         self.assertEqual(incoming, self._msg)
 
     def testBadReadWrite(self):
         self.writePort.write(self._msg + 'rubbish')
-        time.sleep(0.05) # Wait for serial port
+        time.sleep(WAIT) # Wait for serial port
         port = self.readPort
         incoming = port.read(port.inWaiting())
         self.assertNotEqual(incoming, self._msg)

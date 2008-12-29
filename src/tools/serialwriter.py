@@ -30,9 +30,6 @@ import serial
 import time
 
 def main():
-    # Set logging level
-    logging.getLogger().setLevel(logging.INFO)
-
     # Flush stdout immediately after writing
     sys.stdout = utils.FlushFile(sys.stdout)
 
@@ -45,11 +42,23 @@ def main():
     argsParser.add_option('-b', help='baudrate (%default)', default=2400)
     argsParser.add_option('-i', help='interval (%default)', default=1)
     argsParser.add_option('-d', help='data to send (%default)', default=DEFAULT_DATA)
+    argsParser.add_option('-v', help='verbose', action='store_true', default=False)
     options, args = argsParser.parse_args()
-    logging.debug(options)
+    
+    # Set logging level
+    if options.v: 
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.debug(options)
+    else:
+        logging.getLogger().setLevel(logging.INFO)
     
     # Get the serial port
-    port = serial.Serial(port=options.p, baudrate=options.b)
+    try:
+        port = serial.Serial(port=options.p, baudrate=options.b)
+    except Exception, ex:
+        logging.error(ex)
+        sys.exit(1)
+
     logging.debug('Using port: %s' % port.portstr)
     port.open()
     

@@ -16,62 +16,66 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-"Unit tests for libra module."
+'Unit tests for libra module.'
 from __future__ import with_statement
 import libra
+
+import csv
 import os
 import unittest
 
-class TestDatabase(unittest.TestCase):
-    
-    FILENAME = 'test.dat'
+class TestWritetofile(unittest.TestCase):
 
     def setUp(self):
-        if os.path.isfile(TestDatabase.FILENAME):
-            os.remove(TestDatabase.FILENAME)
+        self._FILENAME = 'data.csv'
+        if os.path.isfile(self._FILENAME): os.remove(self._FILENAME)
 
     def tearDown(self):
-        if os.path.isfile(TestDatabase.FILENAME):
-            os.remove(TestDatabase.FILENAME)
+        if os.path.isfile(self._FILENAME): os.remove(self._FILENAME)
 
-    def testFileCreated(self):
-        with libra.Database((None,), TestDatabase.FILENAME): pass
-        self.assertTrue(os.path.isfile(TestDatabase.FILENAME))
-        
-    def testColumnsCreated(self):
-        cols = ('Col1', 'Col2')
-        with libra.Database(cols, TestDatabase.FILENAME) as db:
-            self.assertEqual(cols, db.COLUMNS)
+    def testWrite(self):
+        'Tests fileio.write() method.'
 
-#    def testStore2By2Table(self):
-#        data = (
-#        ('row1col1', 'row1col2'),
-#        ('row2col1', 'row2col2')
-#        )
-#
-#        # Store and retrieve the data
-#        with libra.Database()
-#        self.db.store(data)
-#        results = self.db.load()
-#
-#        for i, row in enumerate(results):
-#            # Ignore first column because it is a timestamp
-#            self.assertEqual(data[i], row[1:])
+        row = [str(x) for x in range(10)]
+        inputdata = [row]
+        libra.write(inputdata, self._FILENAME)
 
-#    def testStore3By3Table(self):
-#        data = (
-#        ('row1col1', 'row1col2', 'row1col3'),
-#        ('row2col1', 'row2col2', 'row2col3'),
-#        ('row3col1', 'row3col2', 'row3col3')
-#        )
-#
-#        # Store and retrieve the data
-#        self.db.store(data)
-#        results = self.db.load()
-#
-#        for i, row in enumerate(results):
-#            # Ignore first column because it is a timestamp
-#            self.assertEqual(data[i], row[1:])
+        with open(self._FILENAME) as f:
+            dataReader = csv.reader(f)
+            result = []
+            for row in dataReader:
+                result.append(row)
+
+        self.assertEqual(result, inputdata)
+
+    def testMultipleRows(self):
+        'Tests multiple rows.'
+        row = [str(x) for x in range(10)]
+        inputdata = [row, row]
+        libra.write(inputdata, self._FILENAME)
+
+        with open(self._FILENAME) as f:
+            dataReader = csv.reader(f)
+            result = []
+            for row in dataReader:
+                result.append(row)
+
+        self.assertEqual(result, inputdata)
+
+    def testMultipleWrites(self):
+        'Tests multiple writes.'
+        row = [str(x) for x in range(10)]
+        inputdata = [row]
+        libra.write(inputdata, self._FILENAME)
+        libra.write(inputdata, self._FILENAME)
+
+        with open(self._FILENAME) as f:
+            dataReader = csv.reader(f)
+            result = []
+            for row in dataReader:
+                result.append(row)
+
+        self.assertEqual(result, [row, row])
 
 if __name__ == "__main__":
     unittest.main()

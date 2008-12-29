@@ -16,20 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-"Core libra functions"
+'Core libra functions'
 
+from __future__ import with_statement
 # User modules
 import parsing
 import utils
 
 # Standard modules
 import ConfigParser
+import csv
 import logging
 import os
-import os.path
 import serial
-import sqlite3
-import time
 
 class Libra(object):
     'Main application class that can be run from text ui or gui.'
@@ -39,21 +38,18 @@ class Libra(object):
     
     def __init__(self, dataCallbacks):
         '''Creates the controller.
-        
-        dataCallbacks is a tuple containing functions to call if data is
-        received.
+
+        Attributes:
+            dataCallbacks -- a tuple containing functions to call if data is received.
         ''' 
         self.__logger = logging.getLogger(__name__)
         self.port = None
         self.timer = None
-        self.db = Database()
         assert dataCallbacks, 'Must have at least one callback to do anything'
-        self.dataCallbacks = [self.db.storeData, dataCallbacks]
+        self.dataCallbacks = [write, dataCallbacks]
     
-    def readSerialConfig(self, configFile=None):
+    def readSerialConfig(self, configFile='libra.cfg'):
         'Reads configuration from given file.'
-        
-        if not configFile: configFile = 'libra.cfg'
         # Try given config file
         if not os.path.isfile(configFile):
             raise IOError(configFile + ' not found.')
@@ -65,6 +61,7 @@ class Libra(object):
     
     def poll(self):
          'Polls the serial port for data and calls the parser if any is present.'
+         if not self.port.isOpen(): self.port.open()
          bytes = self.port.inWaiting()
          self.__logger.debug('%d bytes waiting' % bytes)
          if bytes: 
@@ -74,6 +71,11 @@ class Libra(object):
     def startParser(self, *callbacks, **settings):
         'Starts parser listening for serial data.'
         if not settings: settings = self.readSerialConfig()
+        # Write the column headings to file
+        columns = settings['columns'].split(',')
+        self.__logger.debug('Columns: %s', columns)
+        write((columns,))
+        
         self.__logger.info('Parser starting')
 
         try:
@@ -85,113 +87,33 @@ class Libra(object):
             int(settings['stopbits']))
         except serial.SerialException, msg:
             self.__logger.warning(msg)
-            return
+            return False
         
         self.parser = parsing.Parser(settings['regex'], *self.dataCallbacks)
-        
+
+        # Start polling the serial port
         if not self.timer: 
             self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
         self.__logger.debug('Starting timer...')
         self.timer.start()
         
     def stopParser(self):
-        'Stops the parser'
+        'Stops the parser.'
         self.__logger.info('Parser stopping')
         if self.timer: self.timer.end()
         if self.port:
             if self.port.isOpen():
                 self.port.close()
 
-class Database(object):
-    '''Handles database creation and access.
+def write(data, filename='data.csv'):
+    '''Writes the data to the given filename.
 
-    filename is the relative path to the desired database file.
-    columns is a sequence of the column names.
+    Attributes:
+        data -- a sequence of sequences (e.g. a list of lists).
+        filename -- any file that can be opened.
     '''
-    
-    def __init__(self, columns, filename='libra.dat'):
-        self._columns = columns
-        self._filename = filename
+    logging.debug('Writing to %s; data=%s' % (filename, data))
 
-        # Create a queue for database functions to be called on
-        # (sqlite does not support multithreading)
-        self._serializer = utils.Serializer()
-
-    # Filename property
-    def _getFilename(self): return self._filename
-    FILENAME = property(_getFilename) # Read-only property
-
-    # Columns property
-    def _getColumns(self): return self._columns    
-    COLUMNS = property(_getColumns) # Read-only property
-
-    def __enter__(self):
-        '''Enter the database runtime context.
-
-        See documentation for the "with statement".
-        '''
-        self._conn = self._serializer.execute(self._connect)
-        return self
-
-    def __exit__(self, exception_type, exception_value, traceback):
-        '''Exit the database runtime context.
-
-        See documentation for the "with statement".
-        '''
-        if traceback is None:
-            # No exception so commit
-            self._serializer.execute(self._conn.commit)
-            self._serializer.execute(self._conn.close)
-            return True # No exception to return
-        else:
-            # Exception occured so rollback
-            self._serializer.execute(self._conn.rollback)
-            self._serializer.execute(self._conn.close)
-            return False # Context manager will re-raise any exception
-
-    def _connect(self):
-        'Creates the database and returns a connection to it.'
-        isnewdb = not os.path.isfile(self.FILENAME)
-
-        # Connect to the database
-        conn = sqlite3.connect(self.FILENAME)
-
-        # If the database is new, create the table
-        if isnewdb:
-            cursor = conn.cursor()
-
-            # TODO: Read table format from config file
-            cursor.execute('CREATE TABLE data (date text, status text, other text)')
-        return conn
-
-    def insert(self, results):
-        '''Stores received data in the database.
-
-        len(results) must equal len(columns)
-        '''
-        print results
-        def store():
-            # Create the current timestamp
-            now = time.strftime('%Y-%m-%d %H:%M:%S')
-            cursor = self._conn.cursor()
-
-            for row in results:
-                data = [now]
-                for field in row: data.append(field)
-                print 'data: %s' % data
-                # TODO: Make SQL statement expand to fit results
-                cursor.execute('INSERT INTO data VALUES (?,?,?)', data)
-
-        self.serializer.execute(store)
-
-    def select(self):
-        'Returns a sequence of sequences representing the data table.'
-        def load():
-            cursor = self.conn.cursor()
-            cursor.execute("SELECT * FROM data")
-            data = []
-            for row in cursor:
-                data.append(row)
-            return data
-
-        return self.serializer.execute(load)
+    with open(filename, 'a') as outFile:
+        writer = csv.writer(outFile, lineterminator='\n')
+        writer.writerows(data)

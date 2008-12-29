@@ -17,13 +17,13 @@
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
 "Entry point for using text (command line) user interface."
-
 import libra
 import utils
 
 import logging
 import logging.config
 import optparse
+import os
 import sys
 import time
 
@@ -31,18 +31,15 @@ logger = logging.getLogger(__name__)
 helpMessage = 'Type q to quit:'
 
 def dataCallback(data):
-    "Called when data is successfully parsed."
-    print time.strftime('%Y-%m-%d %H:%M:%S'), data
+    'Called when data is successfully parsed.'
+    for row in data:
+        print time.strftime('%Y-%m-%d %H:%M:%S'), row
 
 def main():
-    "Main program: parse command line and process"
-
+    'Main program: parse command line and process.'
     # Make stdout write almost immediately
     sys.stdout = utils.FlushFile(sys.stdout)
 
-    # Set up the root logger
-    logger.info('libra started')
-    
     # Parse the command line options
     argsParser = optparse.OptionParser()
     argsParser.add_option('-c', '--config', dest='configFile',
@@ -57,6 +54,12 @@ def main():
     options, args = argsParser.parse_args()
     logging.config.fileConfig(options.logConfig)
     logger.debug('Options: ' + str(options))
+
+    # Backup the old data file if it exists
+    if os.path.isfile(options.outFile):
+        backup = options.outFile + '.bak'
+        if os.path.isfile(backup): os.remove(backup)
+        os.rename(options.outFile, backup)
     
     # Read the settings file
     app = libra.Libra(dataCallback)
@@ -77,5 +80,8 @@ def main():
     print 'Quitting.'
     
 if '__main__' == __name__:
-    main()
-
+    try:
+        main()
+    except Exception, ex:
+        logging.error(ex)
+        sys.exit(1)
