@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+#
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
 #
@@ -16,6 +18,7 @@
 
 "Unit tests for fileio module."
 
+from wx.tools.Editra.src.ed_main import __name__
 import csv
 import os
 import unittest
@@ -41,3 +44,6 @@ class TestFileIO(unittest.TestCase):
             result.append(row)
         
         self.assertEqual(result, data)
+
+if __name__ == '__main__':
+    unittest.main()
