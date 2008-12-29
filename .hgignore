@@ -19,10 +19,12 @@ nbproject
 .cache/
 private/
 
-# output directories
+# output
 obj/
 bin/
 Output/
 dist/
 build/
+*.csv
+*.bak
 
