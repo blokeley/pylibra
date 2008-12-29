@@ -18,10 +18,13 @@
 
 'Unit tests for libra module.'
 from __future__ import with_statement
+import os
+import sys
+# Fiddle module loading path to get utils
+sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
 import libra
 
 import csv
-import os
 import unittest
 
 class TestWritetofile(unittest.TestCase):

@@ -21,7 +21,7 @@
 import os
 import sys
 # Fiddle module loading path to get utils
-sys.path.append(os.path.dirname(os.getcwd()))
+sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
 import utils
 
 import logging

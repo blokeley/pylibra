@@ -16,6 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import sys
+# Fiddle module loading path to get utils
+sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
 import parsing
 
 import unittest
