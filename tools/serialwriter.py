@@ -39,8 +39,8 @@ def main():
     # Parse the command line arguments
     argsParser = optparse.OptionParser()
     argsParser.add_option('-p', help='serial port name (%default)', default=0)
-    argsParser.add_option('-b', help='baudrate (%default)', default=2400)
-    argsParser.add_option('-i', help='interval (%default)', default=1)
+    argsParser.add_option('-b', help='baudrate (%default)', default=2400, type='int')
+    argsParser.add_option('-i', help='interval (%default)', default=1.0, type='float')
     argsParser.add_option('-d', help='data to send (%default)', default=DEFAULT_DATA)
     argsParser.add_option('-v', help='verbose', action='store_true', default=False)
     options, args = argsParser.parse_args()
@@ -52,8 +52,6 @@ def main():
     else:
         logging.getLogger().setLevel(logging.INFO)
 
-    interval = float(options.i)
-    
     # Get the serial port
     try:
         port = serial.Serial(port=options.p, baudrate=options.b)
@@ -70,7 +68,7 @@ def main():
     
     # Start writing data
     logging.debug('Starting writer thread...')
-    timer = utils.PeriodicTimer(interval, spew)
+    timer = utils.PeriodicTimer(options.i, spew)
     timer.start()
     
     print 'Type q to quit:'
@@ -82,7 +80,7 @@ def main():
     # Quit
     print 'Quitting...'
     timer.end()                 # Stop the timer
-    time.sleep(1.1 * interval)
+    time.sleep(1.1 * options.i)
     port.close()
     
 if __name__ == '__main__':

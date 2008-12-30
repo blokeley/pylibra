@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-
+#
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
 #
@@ -29,6 +29,8 @@ import csv
 import logging
 import os
 import serial
+
+VERSION='v0.1'
 
 class Libra(object):
     'Main application class that can be run from text ui or gui.'

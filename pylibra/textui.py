@@ -41,7 +41,7 @@ def main():
     sys.stdout = utils.FlushFile(sys.stdout)
 
     # Parse the command line options
-    argsParser = optparse.OptionParser()
+    argsParser = optparse.OptionParser(version=libra.VERSION)
     argsParser.add_option('-o', '--outfile', dest='outfile',
                           help='output data to outfile (%default)',
                           default='data.csv')
