@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-"Entry point for using text (command line) user interface."
+'Entry point for using text (command line) user interface.'
 import libra
 import utils
 
@@ -46,6 +46,8 @@ def main():
                           help='output data to outfile (%default)',
                           default='data.csv')
     options, args = argsParser.parse_args()
+
+    # Set up logging
     logging.config.fileConfig('logging.cfg')
     logger.debug('Options: ' + str(options))
 
@@ -57,10 +59,9 @@ def main():
     
     # Read the settings file
     app = libra.Libra(dataCallback)
-    serialSettings = app.readSerialConfig('libra.cfg')
-    
+
     # Start the parser
-    app.startParser(serialSettings)
+    app.startParser()
     
     # Print a message on how to quit
     print helpMessage
@@ -74,8 +75,4 @@ def main():
     print 'Quitting.'
     
 if '__main__' == __name__:
-    try:
-        main()
-    except Exception, ex:
-        logging.error(ex)
-        sys.exit(1)
+    main()

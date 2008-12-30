@@ -36,17 +36,17 @@ class Libra(object):
     # Interval between polls in seconds
     SERIALPOLLINTERVAL = 1
     
-    def __init__(self, dataCallbacks):
+    def __init__(self, *dataCallbacks):
         '''Creates the controller.
 
         Attributes:
             dataCallbacks -- a tuple containing functions to call if data is received.
         ''' 
         self.__logger = logging.getLogger(__name__)
-        self.port = None
         self.timer = None
-        assert dataCallbacks, 'Must have at least one callback to do anything'
-        self.dataCallbacks = [write, dataCallbacks]
+        # TODO: Handle custom output files
+        self.dataCallbacks = [write,]
+        if dataCallbacks: self.dataCallbacks.append(*dataCallbacks)
     
     def readSerialConfig(self, configFile='libra.cfg'):
         'Reads configuration from given file.'
@@ -68,7 +68,7 @@ class Libra(object):
              data = self.port.read(bytes)
              self.parser.parse(data)
     
-    def startParser(self, *callbacks, **settings):
+    def startParser(self, **settings):
         'Starts parser listening for serial data.'
         if not settings: settings = self.readSerialConfig()
         # Write the column headings to file
