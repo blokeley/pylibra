@@ -42,28 +42,22 @@ def main():
 
     # Parse the command line options
     argsParser = optparse.OptionParser()
-    argsParser.add_option('-c', '--config', dest='configFile',
-                          help='read settings from configFile (%default)',
-                          default='libra.cfg')
-    argsParser.add_option('-o', '--outfile', dest='outFile',
-                          help='output data to outFile (%default)',
+    argsParser.add_option('-o', '--outfile', dest='outfile',
+                          help='output data to outfile (%default)',
                           default='data.csv')
-    argsParser.add_option('-l', '--logconfig', dest='logConfig',
-                          help='read logging settings from file (%default)',
-                          default='logging.cfg')
     options, args = argsParser.parse_args()
-    logging.config.fileConfig(options.logConfig)
+    logging.config.fileConfig('logging.cfg')
     logger.debug('Options: ' + str(options))
 
     # Backup the old data file if it exists
-    if os.path.isfile(options.outFile):
-        backup = options.outFile + '.bak'
+    if os.path.isfile(options.outfile):
+        backup = options.outfile + '.bak'
         if os.path.isfile(backup): os.remove(backup)
-        os.rename(options.outFile, backup)
+        os.rename(options.outfile, backup)
     
     # Read the settings file
     app = libra.Libra(dataCallback)
-    serialSettings = app.readSerialConfig(options.configFile)
+    serialSettings = app.readSerialConfig('libra.cfg')
     
     # Start the parser
     app.startParser(serialSettings)
