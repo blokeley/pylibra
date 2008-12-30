@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import with_statement
 import re
 import logging
 
@@ -26,6 +25,8 @@ class AbstractParser(object):
             self._callbacks = list(callbacks)
         else:
             self._callbacks = []
+
+        self._logger = logging.getLogger(__name__)
     
     def addDataCallback(self, callback):
         'Adds callback to list of functions to call.'
@@ -37,7 +38,7 @@ class AbstractParser(object):
     
     def _callDataCallbacks(self, results):
         if not self._callbacks:
-            logging.warning("No callbacks listening for data.")
+            self._logger.warning("No callbacks listening for data.")
             return
         for callback in self._callbacks:
             callback(results)
@@ -47,7 +48,7 @@ class AbstractParser(object):
         raise NotImplementedError(msg)
                     
 class Parser(AbstractParser):
-    "Stores incoming data in a buffer and parses it using a regular expression."
+    'Stores incoming data in a buffer and parses it using a regular expression.'
 
     MAXBUFFERSIZE = 10240
 
@@ -75,17 +76,4 @@ class Parser(AbstractParser):
     def __str__(self):
         "Returns a string representation of the parser."
         return 'Data: %s, Callbacks: %s' % (self._data, self._callbacks)
-            
-class DummyParser(AbstractParser):
-    "Creates dummy serial events"
-    
-    def __init__(self):
-        self._count = 0
-    
-    def parse(self):
-        for callback in self._callbacks:
-            callback([count, count + 1])
-    
-    def __str__(self):
-        return 'Callbacks: %s, Count: $d' % (self._callbacks, self._count)
     

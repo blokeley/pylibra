@@ -34,7 +34,7 @@ def main():
     sys.stdout = utils.FlushFile(sys.stdout)
 
     # Use line ending for current system
-    DEFAULT_DATA = 'ST 1.23g OK' + os.linesep
+    DEFAULT_DATA = 'ST 1.23g OK'
     
     # Parse the command line arguments
     argsParser = optparse.OptionParser()
@@ -51,6 +51,8 @@ def main():
         logging.debug(options)
     else:
         logging.getLogger().setLevel(logging.INFO)
+
+    interval = float(options.i)
     
     # Get the serial port
     try:
@@ -64,11 +66,11 @@ def main():
     
     def spew():
         logging.debug('Writing %s' % options.d)
-        port.write(options.d)
+        port.write(options.d + os.linesep)
     
     # Start writing data
     logging.debug('Starting writer thread...')
-    timer = utils.PeriodicTimer(options.i, spew)
+    timer = utils.PeriodicTimer(interval, spew)
     timer.start()
     
     print 'Type q to quit:'
@@ -80,7 +82,7 @@ def main():
     # Quit
     print 'Quitting...'
     timer.end()                 # Stop the timer
-    time.sleep(1.1 * options.i)
+    time.sleep(1.1 * interval)
     port.close()
     
 if __name__ == '__main__':

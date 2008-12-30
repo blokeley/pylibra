@@ -43,7 +43,8 @@ class Libra(object):
             dataCallbacks -- a tuple containing functions to call if data is received.
         ''' 
         self.__logger = logging.getLogger(__name__)
-        self.timer = None
+        self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
+
         # TODO: Handle custom output files
         self.dataCallbacks = [write,]
         if dataCallbacks: self.dataCallbacks.append(*dataCallbacks)
@@ -71,6 +72,7 @@ class Libra(object):
     def startParser(self, **settings):
         'Starts parser listening for serial data.'
         if not settings: settings = self.readSerialConfig()
+        
         # Write the column headings to file
         columns = settings['columns'].split(',')
         self.__logger.debug('Columns: %s', columns)
@@ -92,18 +94,14 @@ class Libra(object):
         self.parser = parsing.Parser(settings['regex'], *self.dataCallbacks)
 
         # Start polling the serial port
-        if not self.timer: 
-            self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
         self.__logger.debug('Starting timer...')
         self.timer.start()
         
     def stopParser(self):
         'Stops the parser.'
         self.__logger.info('Parser stopping')
-        if self.timer: self.timer.end()
-        if self.port:
-            if self.port.isOpen():
-                self.port.close()
+        self.timer.end()
+        if self.port.isOpen(): self.port.close()
 
 def write(data, filename='data.csv'):
     '''Writes the data to the given filename.
