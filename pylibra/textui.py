@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-
+#
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
 #

@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-
+#
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
 #
@@ -16,9 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
+'Unit tests for the parsing module.'
+
 import os
 import sys
-# Fiddle module loading path to get utils
+# Fiddle module loading path to get parsing module
 sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
 import parsing
 
@@ -28,12 +30,26 @@ def callback(data):
     global result
     result = data
 
-class TestParsing(unittest.TestCase):
-    "Tests parsing classes and functions."
+OXFORDREGEX = r'(ST)\s*([+-]?\d+\.?\d*)\s*(\S+)'
+
+REGEXTESTS = (
+        ('1', []),
+        ('ST +12.34 g', [('ST', '+12.34', 'g')]),
+        ('ST +12.34 g ST +12.34 g ', [('ST', '+12.34', 'g'), ('ST', '+12.34', 'g')]),
+        ('ST -1 kg', [('ST', '-1', 'kg')])
+        )
+
+WORDTESTS =(
+        ('some text', [('some', 'text')]),
+        ('some text\n', [('some', 'text')]),
+        ('some text1\nsome text2', [('some', 'text1'), ('some', 'text2')])
+        )
+
+class TestRegexParser(unittest.TestCase):
     
     def setUp(self):
         self.regex = r'(ST|OL)\s*(\d+\.\d+)\s*(\S?)'
-        self.parser = parsing.Parser(self.regex)
+        self.parser = parsing.RegexParser(self.regex)
         self.input = 'x ST 12.34 g x'
     
     def tearDown(self):
@@ -41,7 +57,7 @@ class TestParsing(unittest.TestCase):
         result = None
     
     def testInitialCallback(self):
-        self.parser = parsing.Parser(self.regex, callback)
+        self.parser = parsing.RegexParser(self.regex, callback)
         self.assertTrue([callback], self.parser._callbacks)
         
     def testAddCallback(self):
@@ -60,14 +76,30 @@ class TestParsing(unittest.TestCase):
         self.assertEqual([('ST', '12.34', 'g')], result)
         self.parser.parse('ST 12.35 g')
         self.assertEqual([('ST', '12.35', 'g')], result)
+    
+    def testSingleParsing(self):
+        for input, output in REGEXTESTS:
+            self.p = parsing.RegexParser(OXFORDREGEX)
+            self.assertEqual(output, self.p.parse(input))
 
-#    def testBufferClearing(self):
-#        self.parser.addDataCallback(callback)
-#        self.parser.parse('nonsense')
-#        self.parser.parse(self.input)
-#        self.parser.parse('nonsense')
-#        self.parser.parse(self.input)
-#        self.assertEqual([('ST', '12.34', 'g'), ('ST', '12.34', 'g')], result)
+    def testMultipleParsing(self):
+        self.p = parsing.RegexParser(OXFORDREGEX)
 
+        for input, output in REGEXTESTS:
+            self.assertEqual(output, self.p.parse(input))
+
+class TestWordParser(unittest.TestCase):
+    
+    def testSingleParsing(self):
+        for input, output in WORDTESTS:
+            self.p = parsing.WordParser()
+            self.assertEqual(output, self.p.parse(input))
+
+    def testMultipleParsing(self):
+        self.p = parsing.WordParser()
+        
+        for input, output in WORDTESTS:
+            self.assertEqual(output, self.p.parse(input))
+   
 if '__main__' == __name__:
     unittest.main()

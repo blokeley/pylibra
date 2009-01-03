@@ -77,8 +77,9 @@ class Libra(object):
         
         # Write the column headings to file
         columns = settings['columns'].split(',')
+        columns.remove('')
         self.__logger.debug('Columns: %s', columns)
-        write((columns,))
+        if columns: write((columns,))
         
         self.__logger.info('Parser starting')
 
@@ -93,7 +94,12 @@ class Libra(object):
             self.__logger.warning(msg)
             return False
         
-        self.parser = parsing.Parser(settings['regex'], *self.dataCallbacks)
+        try:
+            # If config file has a regex, use a RegexParser
+            self.parser = parsing.RegexParser(settings['regex'], *self.dataCallbacks)
+        except KeyError:
+            # If no regex is defined, use a WordParser
+            self.parser = parsing.WordParser(*self.dataCallbacks)
 
         # Start polling the serial port
         self.__logger.debug('Starting timer...')
