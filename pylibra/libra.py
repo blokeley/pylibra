@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-'Core libra functions'
+"""Core libra functions."""
 
 from __future__ import with_statement
 # User modules
@@ -29,21 +29,22 @@ import csv
 import logging
 import os
 import serial
+import time
 
-VERSION='v0.1'
+VERSION='v0.2'
 
 class Libra(object):
-    'Main application class that can be run from text ui or gui.'
+    """Main application class that can be run from text ui or gui."""
 
     # Interval between polls in seconds
     SERIALPOLLINTERVAL = 1
     
     def __init__(self, *dataCallbacks):
-        '''Creates the controller.
+        """Creates the controller.
 
         Attributes:
             dataCallbacks -- a tuple containing functions to call if data is received.
-        ''' 
+        """ 
         self.__logger = logging.getLogger(__name__)
         self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
 
@@ -52,7 +53,7 @@ class Libra(object):
         if dataCallbacks: self.dataCallbacks.append(*dataCallbacks)
     
     def readSerialConfig(self, configFile='libra.cfg'):
-        'Reads configuration from given file.'
+        """Reads configuration from given file."""
         # Try given config file
         if not os.path.isfile(configFile):
             raise IOError(configFile + ' not found.')
@@ -63,7 +64,8 @@ class Libra(object):
         return settings
     
     def poll(self):
-         'Polls the serial port for data and calls the parser if any is present.'
+         """Polls the serial port for data and calls the parser 
+         if any is present."""
          if not self.port.isOpen(): self.port.open()
          bytes = self.port.inWaiting()
          self.__logger.debug('%d bytes waiting' % bytes)
@@ -72,12 +74,13 @@ class Libra(object):
              self.parser.parse(data)
     
     def startParser(self, **settings):
-        'Starts parser listening for serial data.'
+        """Starts parser listening for serial data."""
         if not settings: settings = self.readSerialConfig()
         
         # Write the column headings to file
         columns = settings['columns'].split(',')
-        columns.remove('')
+        # Remove empty column headings
+        if '' in columns: columns.remove('')
         self.__logger.debug('Columns: %s', columns)
         if columns: write((columns,))
         
@@ -106,18 +109,34 @@ class Libra(object):
         self.timer.start()
         
     def stopParser(self):
-        'Stops the parser.'
+        """Stops the parser."""
         self.__logger.info('Parser stopping')
         self.timer.end()
         if self.port.isOpen(): self.port.close()
 
-def write(data, filename='data.csv'):
-    '''Writes the data to the given filename.
+def timestamp(function):
+    """Decorator that adds a timestamp to each row of data.
 
-    Attributes:
-        data -- a sequence of sequences (e.g. a list of lists).
-        filename -- any file that can be opened.
-    '''
+    data - a sequence of sequences (2-dimensional 'array'.
+    """
+    def wrapper(data):
+        def stamp(row):
+            row = list(row)
+            row.insert(0, time.strftime('%Y-%m-%d %H:%M:%S'))
+            return row
+        newdata = map(stamp, data)
+        return function(newdata)
+    return wrapper
+
+# Use the timestamp decorator to stamp evey line of data written
+@timestamp
+def write(data, filename='data.csv'):
+    """Writes the data to the given filename.
+
+    Parameters:
+        data - a sequence of sequences (e.g. a list of lists).
+        filename - any file that can be opened.
+    """
     logging.debug('Writing to %s; data=%s' % (filename, data))
 
     with open(filename, 'a') as outFile:

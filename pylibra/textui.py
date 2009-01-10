@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-'Entry point for using text (command line) user interface.'
+"""Entry point for using text (command line) user interface."""
 import libra
 import utils
 
@@ -25,18 +25,20 @@ import logging.config
 import optparse
 import os
 import sys
-import time
 
 logger = logging.getLogger(__name__)
 helpMessage = 'Type q to quit:'
 
+@libra.timestamp # Add a timestamp to every row
 def dataCallback(data):
-    'Called when data is successfully parsed.'
-    for row in data:
-        print time.strftime('%Y-%m-%d %H:%M:%S'), row
+    """Called when data is successfully parsed."""
+    print data
 
 def main():
-    'Main program: parse command line and process.'
+    """Main program entry function.
+    
+    Parses the command line, processes the options and starts the parser.
+    """
     # Make stdout write almost immediately
     sys.stdout = utils.FlushFile(sys.stdout)
 
