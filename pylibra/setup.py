@@ -16,23 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-'''Script to create Windows executable.
+"""Script to create Windows executable.
 
 Example:
 >>>python setup.py py2exe
-'''
+"""
+
+import libra
 
 from distutils.core import setup
-import os
 import py2exe
 import shutil
 
 # Create the executable
-setup(console=['textui.py'])
-
-# Copy config files across
-for file in ('libra.cfg', 'logging.cfg'):
-    shutil.copy(file, 'dist')
+setup(
+version = libra.VERSION,
+description = 'pylibra command line serial data reader',
+name='libra',
+options = {'py2exe': {'bundle_files': 1}},
+console = ['textui.py'],
+zipfile = None,
+data_files = [('', ['libra.cfg', 'logging.cfg'])]
+)
 
 # Clean up
 shutil.rmtree('build')

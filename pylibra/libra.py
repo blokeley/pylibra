@@ -31,7 +31,8 @@ import os
 import serial
 import time
 
-VERSION='v0.2'
+# Version must be a string but be parsable to float by py2exe.
+VERSION='0.2'
 
 class Libra(object):
     """Main application class that can be run from text ui or gui."""
