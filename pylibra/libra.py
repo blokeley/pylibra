@@ -17,7 +17,6 @@
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
 """Core libra functions."""
-
 from __future__ import with_statement
 # User modules
 import parsing
@@ -32,7 +31,13 @@ import serial
 import time
 
 # Version must be a string but be parsable to float by py2exe.
-VERSION='0.2'
+VERSION='0.3'
+
+def timestamp(mylist):
+    """Inserts a timestamp string at the beginning of the given list."""
+    mylist = list(mylist)
+    mylist.insert(0, time.strftime('%Y-%m-%d %H:%M:%S'))
+    return mylist
 
 class Libra(object):
     """Main application class that can be run from text ui or gui."""
@@ -40,19 +45,16 @@ class Libra(object):
     # Interval between polls in seconds
     SERIALPOLLINTERVAL = 1
     
-    def __init__(self, *dataCallbacks):
+    def __init__(self, filename='data.csv'):
         """Creates the controller.
 
-        Attributes:
-            dataCallbacks -- a tuple containing functions to call if data is received.
+        filename - the file to write data to
         """ 
-        self.__logger = logging.getLogger(__name__)
+        self._logger = logging.getLogger(__name__)
+        self.filename = filename
         self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
+        self.datacallbacks = [self.writetofile,]
 
-        # TODO: Handle custom output files
-        self.dataCallbacks = [write,]
-        if dataCallbacks: self.dataCallbacks.append(*dataCallbacks)
-    
     def readSerialConfig(self, configFile='libra.cfg'):
         """Reads configuration from given file."""
         # Try given config file
@@ -69,7 +71,7 @@ class Libra(object):
          if any is present."""
          if not self.port.isOpen(): self.port.open()
          bytes = self.port.inWaiting()
-         self.__logger.debug('%d bytes waiting' % bytes)
+         self._logger.debug('%d bytes waiting' % bytes)
          if bytes: 
              data = self.port.read(bytes)
              self.parser.parse(data)
@@ -82,10 +84,10 @@ class Libra(object):
         columns = settings['columns'].split(',')
         # Remove empty column headings
         if '' in columns: columns.remove('')
-        self.__logger.debug('Columns: %s', columns)
-        if columns: write((columns,))
+        self._logger.debug('Columns: %s', columns)
+        if columns: self.writetofile((columns,))
         
-        self.__logger.info('Parser starting')
+        self._logger.info('Parser starting')
 
         try:
             # Set up the serial port
@@ -95,51 +97,38 @@ class Libra(object):
             settings['parity'],
             int(settings['stopbits']))
         except serial.SerialException, msg:
-            self.__logger.warning(msg)
+            self._logger.warning(msg)
             return False
         
         try:
             # If config file has a regex, use a RegexParser
-            self.parser = parsing.RegexParser(settings['regex'], *self.dataCallbacks)
+            self.parser = parsing.RegexParser(settings['regex'], *self.datacallbacks)
         except KeyError:
             # If no regex is defined, use a WordParser
-            self.parser = parsing.WordParser(*self.dataCallbacks)
+            self.parser = parsing.WordParser(*self.datacallbacks)
 
         # Start polling the serial port
-        self.__logger.debug('Starting timer...')
+        self._logger.debug('Starting timer...')
         self.timer.start()
         
     def stopParser(self):
         """Stops the parser."""
-        self.__logger.info('Parser stopping')
+        self._logger.info('Parser stopping')
         self.timer.end()
-        if self.port.isOpen(): self.port.close()
+        try:
+            if self.port.isOpen(): self.port.close()
+        except AttributeError: pass
 
-def timestamp(function):
-    """Decorator that adds a timestamp to each row of data.
+    def writetofile(self, data):
+        """Writes the data to the given filename.
 
-    data - a sequence of sequences (2-dimensional 'array'.
-    """
-    def wrapper(data):
-        def stamp(row):
-            row = list(row)
-            row.insert(0, time.strftime('%Y-%m-%d %H:%M:%S'))
-            return row
-        newdata = map(stamp, data)
-        return function(newdata)
-    return wrapper
-
-# Use the timestamp decorator to stamp evey line of data written
-@timestamp
-def write(data, filename='data.csv'):
-    """Writes the data to the given filename.
-
-    Parameters:
         data - a sequence of sequences (e.g. a list of lists).
-        filename - any file that can be opened.
-    """
-    logging.debug('Writing to %s; data=%s' % (filename, data))
+        """
+        # Add a timestamp
+        newdata = map(timestamp, data)
 
-    with open(filename, 'a') as outFile:
-        writer = csv.writer(outFile, lineterminator='\n')
-        writer.writerows(data)
+        logging.debug('Writing to %s; data=%s' % (self.filename, newdata))
+
+        with open(self.filename, 'a') as outFile:
+            writer = csv.writer(outFile, lineterminator='\n')
+            writer.writerows(newdata)

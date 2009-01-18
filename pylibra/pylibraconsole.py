@@ -27,12 +27,12 @@ import os
 import sys
 
 logger = logging.getLogger(__name__)
-helpMessage = 'Type q to quit:'
 
-@libra.timestamp # Add a timestamp to every row
-def dataCallback(data):
+def echo(*lines):
     """Called when data is successfully parsed."""
-    print data
+    # Timestamp each line
+    newlines = map(libra.timestamp, lines)
+    for line in newlines: print line
 
 def main():
     """Main program entry function.
@@ -55,22 +55,21 @@ def main():
 
     # Backup the old data file if it exists
     if os.path.isfile(options.outfile):
-        backup = options.outfile + '.bak'
+        backup = options.outfile[:-4] + '.bak'
         if os.path.isfile(backup): os.remove(backup)
         os.rename(options.outfile, backup)
     
     # Read the settings file
-    app = libra.Libra(dataCallback)
+    app = libra.Libra(options.outfile)
+    app.datacallbacks.append(echo)
 
     # Start the parser
     app.startParser()
     
-    # Print a message on how to quit
-    print helpMessage
-    
     # Block until quit command is received
-    while sys.stdin.readline()[0] != 'q':
-        print helpMessage
+    while True:
+        command = raw_input('Type q to quit:')
+        if command[0] == 'q': break
     
     # Stop the parser
     app.stopParser()
