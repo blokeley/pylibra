@@ -28,6 +28,7 @@ import csv
 import logging
 import os
 import serial
+import sys
 import time
 
 # Version must be a string but be parsable to float by py2exe.
@@ -63,7 +64,12 @@ class Libra(object):
         
         config = ConfigParser.SafeConfigParser()
         config.read(configFile)
-        settings = dict(config.items('serial'))
+        try:
+            settings = dict(config.items('serial'))
+        except ConfigParser.NoSectionError, e:
+            print 'Check your config file: '
+            for error in e.args: print error
+            sys.exit(2)
         return settings
     
     def poll(self):
@@ -124,11 +130,14 @@ class Libra(object):
 
         data - a sequence of sequences (e.g. a list of lists).
         """
-        # Add a timestamp
-        newdata = map(timestamp, data)
+        # Take last reading only
+        lastdata = data[-1]
 
-        logging.debug('Writing to %s; data=%s' % (self.filename, newdata))
+        # Add a timestamp
+        lastdata = timestamp(lastdata)
+
+        logging.debug('Writing to %s; data=%s' % (self.filename, lastdata))
 
         with open(self.filename, 'a') as outFile:
             writer = csv.writer(outFile, lineterminator='\n')
-            writer.writerows(newdata)
+            writer.writerow(lastdata)

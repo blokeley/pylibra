@@ -28,11 +28,13 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-def echo(*lines):
+def echo(lines):
     """Called when data is successfully parsed."""
+    # Take last reading only
+    line = lines[-1]
     # Timestamp each line
-    newlines = map(libra.timestamp, lines)
-    for line in newlines: print line
+    line = libra.timestamp(line)
+    print line
 
 def main():
     """Main program entry function.
