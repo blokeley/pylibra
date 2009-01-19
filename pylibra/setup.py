@@ -32,9 +32,9 @@ import shutil
 setup(
 version = libra.VERSION,
 description = 'pylibra command line serial data reader',
-name='libra',
+name='pylibra',
 options = {'py2exe': {'bundle_files': 1}},
-console = ['textui.py'],
+console = ['pylibra.py'],
 zipfile = None,
 data_files = [('', ['libra.cfg', 'logging.cfg'])]
 )
