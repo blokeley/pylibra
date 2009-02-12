@@ -1,6 +1,7 @@
-===================
-Libra documentation
-===================
+=====================
+pylibra documentation
+=====================
+
 :Author: Tom Oakley
 :Copyright: Copyright (c) 2008, 2009  Tom Oakley.
 
@@ -62,35 +63,66 @@ To develop Libra you simply need a python interpreter and a couple
 of libraries:
 
 * Python_ 2.5.x interpreter. Note that 2.6 or 3.0 will not work.
-
 * pySerial_ serial port library.
-
 * py2exe_ to create the Windows executable.
-
-* docutils_ to convert this file into HTML.
-
 * A good text editor. Note that jEdit has a syntax highlighting mode for
   reStructuredText.
 
+.. links..
 .. _Python: http://www.python.org/
 .. _pySerial: http://pyserial.wiki.sourceforge.net/pySerial
 .. _py2exe: http://www.py2exe.org/
 .. _docutils: http://docutils.sourceforge.net/docs/
 
-Building
--------------------
-If you want to build a Windows executable, open a terminal and run
-``python setup.py py2exe``.
+Recommended workflow
+--------------------
 
-To build documentation on Windows, make sure that ``C:\Python25\Tools\docutils``
-is on your %PATH% environment variable, then at the command prompt run
-``buildhtml.py``.
+1. Choose a ticket to address from http://trac-hg.assembla.com/pylibra/report/1
+2. Update your copy of the source using ``hg update``.
+3. If at all possible, write a unit test or tests to expose the problem.
+4. Solve the problem.
+5. If you want to build a Windows executable, open a terminal and run
+   ``python setup.py py2exe``.
+6. Test as much as possible.
+7. Update the documentation_ if you make any changes noticeable to the user.
+8. Commit using ``hg commit -m`` with a helpful commit message, preferably
+   referencing the ticket with ``ticket:xx`` where xx is the ticket number.
+9. Create a changegroup file using ``hg bundle --base BASE`` where BASE is the
+   last revision you got from the online repository (the last before your
+   changes).
+10. Upload the changegroup file to the ticket and update the ticket.
 
-To build documentation (on debian-based machines with docutils installed) use 
-``rst-buildhtml doc``
+Documentation
+-------------
+
+1. Update all files under the ``doc`` directory of the source.
+2. Create HTML files and PDFs as necessary. You can use the rst2a_ website to
+   create both HTML and PDF files. Note that rst2a_ does not convert internal
+   links properly in the HTML output.
+
+Alternatively, if you do not want to use rst2a_, do the following:
+
+.. _rst2a: http://rst2a.com/create/
+
+Windows
+~~~~~~~
+1. Download docutils_.
+2. Make sure that ``C:\Python25\Tools\docutils`` is on your %PATH% environment
+   variable.
+3. Open a command prompt.
+4. ``cd`` to the pylibra source doc directory.
+5. Type ``buildhtml.py``.
+
+Ubuntu linux
+~~~~~~~~~~~~
+
+1. Run ``apt-get install docutils``.
+2. Open a terminal.
+3. ``cd`` to the pylibra source doc directory.
+4. Type ``rst-buildhtml``
 
 Support
 -------
 Please `create a new ticket`_.
 
-.. _create a new ticket: _ http://trac-hg.assembla.com/pylibra/newticket
+.. _create a new ticket: http://trac-hg.assembla.com/pylibra/newticket
