@@ -40,6 +40,34 @@ def timestamp(mylist):
     mylist.insert(0, time.strftime('%Y-%m-%d %H:%M:%S'))
     return mylist
 
+def readSerialConfig(configFile='libra.cfg'):
+    """Reads configuration from given file."""
+    # Try given config file
+    if not os.path.isfile(configFile):
+        raise IOError(configFile + ' not found.')
+
+    config = ConfigParser.SafeConfigParser()
+    config.read(configFile)
+    try:
+        settings = dict(config.items('serial'))
+    except ConfigParser.NoSectionError, e:
+        print 'Check your config file: '
+        for error in e.args: print error
+        sys.exit(2)
+    return settings
+
+def getColumns(**settings):
+    """Returns the data column names."""
+    if not settings: settings = readSerialConfig()
+
+    # Get the column headings
+    # TODO: use settings.get() to provide a default empty list
+    columns = settings['columns'].split(',')
+
+    # Remove empty column headings
+    if '' in columns: columns.remove('')
+    return columns
+
 class Libra(object):
     """Main application class that can be run from text ui or gui."""
 
@@ -53,25 +81,8 @@ class Libra(object):
         """ 
         self._logger = logging.getLogger(__name__)
         self.filename = filename
-        self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
-        self.datacallbacks = [self.writetofile,]
+        self.datacallbacks = [self.write,]
 
-    def readSerialConfig(self, configFile='libra.cfg'):
-        """Reads configuration from given file."""
-        # Try given config file
-        if not os.path.isfile(configFile):
-            raise IOError(configFile + ' not found.')
-        
-        config = ConfigParser.SafeConfigParser()
-        config.read(configFile)
-        try:
-            settings = dict(config.items('serial'))
-        except ConfigParser.NoSectionError, e:
-            print 'Check your config file: '
-            for error in e.args: print error
-            sys.exit(2)
-        return settings
-    
     def poll(self):
          """Polls the serial port for data and calls the parser 
          if any is present."""
@@ -84,24 +95,18 @@ class Libra(object):
     
     def startParser(self, **settings):
         """Starts parser listening for serial data."""
-        if not settings: settings = self.readSerialConfig()
-        
-        # Write the column headings to file
-        columns = settings['columns'].split(',')
-        # Remove empty column headings
-        if '' in columns: columns.remove('')
-        self._logger.debug('Columns: %s', columns)
-        if columns: self.writetofile((columns,))
+        self.stopParser()
+        if not settings: settings = readSerialConfig()
         
         self._logger.info('Parser starting')
 
         try:
             # Set up the serial port
             self.port = serial.Serial(settings['port'],
-            int(settings['baudrate']),
-            int(settings['bytesize']),
-            settings['parity'],
-            int(settings['stopbits']))
+            int(settings.get('baudrate', 2400)),
+            int(settings.get('bytesize', serial.EIGHTBITS)),
+            settings.get('parity', serial.PARITY_NONE),
+            int(settings.get('stopbits', serial.STOPBITS_ONE)))
         except serial.SerialException, msg:
             self._logger.warning(msg)
             return False
@@ -115,29 +120,32 @@ class Libra(object):
 
         # Start polling the serial port
         self._logger.debug('Starting timer...')
+        self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
         self.timer.start()
         
     def stopParser(self):
         """Stops the parser."""
         self._logger.info('Parser stopping')
-        self.timer.end()
         try:
-            if self.port.isOpen(): self.port.close()
-        except AttributeError: pass
+            self.timer.end()
+            self.port.close()
+        except: pass
 
-    def writetofile(self, data):
-        """Writes the data to the given filename.
+    def write(self, data):
+        writetofile(self.filename, data)
 
-        data - a sequence of sequences (e.g. a list of lists).
-        """
-        # Take last reading only
-        lastdata = data[-1]
+def writetofile(filename, data):
+    """Writes the data to the given filename.
 
-        # Add a timestamp
-        lastdata = timestamp(lastdata)
+    filename - the filename to write to
+    data - a sequence of sequences (e.g. a list of lists).
+    """
+    # Take last reading only
+    lastdata = data[-1]
 
-        logging.debug('Writing to %s; data=%s' % (self.filename, lastdata))
+    # Add a timestamp
+    lastdata = timestamp(lastdata)
 
-        with open(self.filename, 'a') as outFile:
-            writer = csv.writer(outFile, lineterminator='\n')
-            writer.writerow(lastdata)
+    with open(filename, 'a') as outFile:
+        writer = csv.writer(outFile, lineterminator='\n')
+        writer.writerow(lastdata)

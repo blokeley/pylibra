@@ -65,6 +65,9 @@ def main():
     app = libra.Libra(options.outfile)
     app.datacallbacks.append(echo)
 
+    columns = libra.getColumns()
+    if columns: libra.writetofile(options.outfile, (columns,))
+
     # Start the parser
     app.startParser()
     
