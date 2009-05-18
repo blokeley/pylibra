@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 #
 # Copyright 2008 Tom Oakley
 # This file is part of pylibra.
@@ -15,21 +15,38 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see http://www.gnu.org/licenses/.
+#
+# Style note: this module deviates from http://www.python.org/dev/peps/pep-0008/
+# because wxPython uses Microsoft C++ styles and we have to override some
+# wxPython methods.
+#
+# FIXME: Make Grid fill available area. Test with long strings.
+# TODO: Check unit tests work
+# TODO: Make parser start on different thread from GUI
+# TODO: Check pylibra command line still works
+# TODO: Add decent help support
+# TODO: Release as v0.4
 
 """Graphical user interface for pylibra."""
-# User libraries
-import libra
 
-# Standard libraries
 import logging
 import logging.config
 import webbrowser
 import os
+import sys
+import traceback
 import wx
 import wx.grid
 
+import libra
+
 _RESOLUTION_VGA = (640, 480)
 _URL_HELP = 'http://trac-hg.assembla.com/pylibra/wiki/UserInstructions'
+_EXCEPTION_MSG = '''An error occurred. This is normally a problem with
+configuration, connection to peripherals, or bad input data.
+'''
+_QUIT_MSG = 'Do you want to quit?'
+
 
 class App(wx.App):
     
@@ -55,15 +72,38 @@ class App(wx.App):
         # Set up the serial port reader
         controller = libra.Libra(outfile)
         self.table = Table(columns)
-        controller.datacallbacks.append(self.table.datareceived)
+        controller.datacallbacks.append(self.table.DataReceived)
 
         self.frame = Frame(None, 'pylibra', self.table, controller)
         self.frame.Show()
         self.SetTopWindow(self.frame)
         return True # No errors during init
 
+    def OnExit(self):
+        """Clear up (close any db connections etc.).
+
+        Called after last top-leve frame is closed.
+
+        """
+        # Placeholder for later code
+
+    def ExceptHook(self, type, value, tb):
+        """Display any uncaught exception in a dialog box."""
+        _LOGGER = logging.getLogger('App.ExceptHook')
+        _LOGGER.error(value)
+
+        msg = '%s\n%s\n\n%s' % (_EXCEPTION_MSG, value, _QUIT_MSG)
+        dlg = wx.MessageDialog(self.frame, msg, 'Error', wx.YES_NO | wx.ICON_ERROR)
+        returnCode = dlg.ShowModal()
+        dlg.Destroy()
+        
+        if returnCode == wx.ID_YES:
+            wx.Exit()
+
+
 class Frame(wx.Frame):
     """The application's main frame (window)."""
+    
     def __init__(self, parent, title, table, controller):
         wx.Frame.__init__(self, parent, title=title, size=(_RESOLUTION_VGA))
         
@@ -118,7 +158,7 @@ class Frame(wx.Frame):
     def OnExit(self, evt):
         self.Close()
 
-    def SetReading(self, b):
+    def _SetReading(self, b):
         """Sets whether the serial reading is active."""
         if b:
             self.reading = True
@@ -129,12 +169,13 @@ class Frame(wx.Frame):
             self.startbutton.Enable(True)
             self.stopbutton.Enable(False)
 
-    def IsReading(self):
+    def _IsReading(self):
         """Whether the app is reading the serial port."""
         return self.reading
 
-    Reading = property(IsReading, SetReading)
- 
+    Reading = property(_IsReading, _SetReading)
+
+
 class Table(wx.grid.PyGridTableBase):
     """Table model of data."""
 
@@ -147,13 +188,15 @@ class Table(wx.grid.PyGridTableBase):
         self.data = []
 
     def AddObserver(self, observer):
+        # TODO: Change self.views to a set and remove if statement
         if observer not in self.views:
             self.views.append(observer)
 
     def RemoveObserver(self, observer):
         try:
             self.views.remove(observer)
-        except ValueError: pass
+        except ValueError:
+            pass
 
     def GetNumberRows(self):
         numrows = len(self.data)
@@ -181,10 +224,11 @@ class Table(wx.grid.PyGridTableBase):
     def SetValue(self, row, col, value):
         self.data[row][col] = value
 
-    def datareceived(self, data):
-        """Adds new data to the table.
+    def DataReceived(self, data):
+        """Add new data to the table.
 
-        data - a list of lists containing strings of data
+        data -- a list of lists containing strings of data
+        
         """
         for row in data:
             self.data.append(row)
@@ -197,16 +241,21 @@ class Table(wx.grid.PyGridTableBase):
             view.ProcessTableMessage(msg)
             #view.ForceRefresh()
 
+
 class Grid(wx.grid.Grid):
     """Graphical widget showing the table.
 
     See Table for table model logic.
+    
     """
     def __init__(self, parent, table):
         wx.grid.Grid.__init__(self, parent)
         self.SetTable(table)
         self.EnableEditing(False)
 
+
 if __name__ == "__main__":
     app = App()
+    # Set up the exception handler
+    sys.excepthook = app.ExceptHook
     app.MainLoop()

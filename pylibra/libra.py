@@ -34,11 +34,13 @@ import time
 # Version must be a string but be parsable to float by py2exe.
 VERSION='0.3'
 
+
 def timestamp(mylist):
     """Inserts a timestamp string at the beginning of the given list."""
     mylist = list(mylist)
     mylist.insert(0, time.strftime('%Y-%m-%d %H:%M:%S'))
     return mylist
+
 
 def readSerialConfig(configFile='libra.cfg'):
     """Reads configuration from given file."""
@@ -56,17 +58,21 @@ def readSerialConfig(configFile='libra.cfg'):
         sys.exit(2)
     return settings
 
+
 def getColumns(**settings):
     """Returns the data column names."""
-    if not settings: settings = readSerialConfig()
+    if not settings:
+        settings = readSerialConfig()
 
     # Get the column headings
     # TODO: use settings.get() to provide a default empty list
     columns = settings['columns'].split(',')
 
     # Remove empty column headings
-    if '' in columns: columns.remove('')
+    if '' in columns:
+        columns.remove('')
     return columns
+
 
 class Libra(object):
     """Main application class that can be run from text ui or gui."""
@@ -100,16 +106,13 @@ class Libra(object):
         
         self._logger.info('Parser starting')
 
-        try:
-            # Set up the serial port
-            self.port = serial.Serial(settings['port'],
-            int(settings.get('baudrate', 2400)),
-            int(settings.get('bytesize', serial.EIGHTBITS)),
-            settings.get('parity', serial.PARITY_NONE),
-            int(settings.get('stopbits', serial.STOPBITS_ONE)))
-        except serial.SerialException, msg:
-            self._logger.warning(msg)
-            return False
+        # Set up the serial port
+        self.port = serial.Serial(settings['port'],
+        int(settings.get('baudrate', 2400)),
+        int(settings.get('bytesize', serial.EIGHTBITS)),
+        settings.get('parity', serial.PARITY_NONE),
+        int(settings.get('stopbits', serial.STOPBITS_ONE)))
+        self._logger.warning(msg)
         
         try:
             # If config file has a regex, use a RegexParser

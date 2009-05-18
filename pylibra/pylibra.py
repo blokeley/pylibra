@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
@@ -14,11 +14,9 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra.  If not, see http://www.gnu.org/licenses/.
 
 """Entry point for using text (command line) user interface."""
-import libra
-import utils
 
 import logging
 import logging.config
@@ -26,7 +24,14 @@ import optparse
 import os
 import sys
 
-logger = logging.getLogger(__name__)
+# Set up logging before user imports
+logging.config.fileConfig('logging.cfg')
+
+import libra
+import utils
+
+_LOGGER = logging.getLogger(__name__)
+
 
 def echo(lines):
     """Called when data is successfully parsed."""
@@ -36,10 +41,12 @@ def echo(lines):
     line = libra.timestamp(line)
     print line
 
+
 def main():
     """Main program entry function.
     
-    Parses the command line, processes the options and starts the parser.
+    Parse the command line, process the options and start the parser.
+    
     """
     # Make stdout write almost immediately
     sys.stdout = utils.FlushFile(sys.stdout)
@@ -51,14 +58,13 @@ def main():
                           default='data.csv')
     options, args = argsParser.parse_args()
 
-    # Set up logging
-    logging.config.fileConfig('logging.cfg')
-    logger.debug('Options: ' + str(options))
+    _LOGGER.debug('Options: ' + str(options))
 
     # Backup the old data file if it exists
     if os.path.isfile(options.outfile):
         backup = options.outfile[:-4] + '.bak'
-        if os.path.isfile(backup): os.remove(backup)
+        if os.path.isfile(backup):
+            os.remove(backup)
         os.rename(options.outfile, backup)
     
     # Read the settings file
@@ -66,7 +72,8 @@ def main():
     app.datacallbacks.append(echo)
 
     columns = libra.getColumns()
-    if columns: libra.writetofile(options.outfile, (columns,))
+    if columns:
+        libra.writetofile(options.outfile, (columns,))
 
     # Start the parser
     app.startParser()
@@ -74,11 +81,21 @@ def main():
     # Block until quit command is received
     while True:
         command = raw_input('Type q to quit:')
-        if command[0] == 'q': break
+        if command[0] == 'q': 
+            break
     
     # Stop the parser
     app.stopParser()
     print 'Quitting.'
-    
+
+
 if '__main__' == __name__:
-    main()
+    try:
+        _LOGGER.info('Starting pylibra' + '-' * 30)
+        main()
+        _LOGGER.info('Exit OK.' + '-' * 30)
+    except Exception:
+        _LOGGER.exception('Unhandled exception.')
+    finally:
+        logging.shutdown()
+
