@@ -62,11 +62,15 @@ Tools
 To develop Libra you simply need a python interpreter and a couple 
 of libraries:
 
-* Python_ 2.5.x interpreter. Note that 2.6 or 3.0 will not work.
+* Python_ 2.6+ interpreter. Note that 3.0+ will not work.
 * pySerial_ serial port library.
 * py2exe_ to create the Windows executable.
 * A good text editor. Note that jEdit has a syntax highlighting mode for
   reStructuredText.
+  
+Note that at the time of writing you cannot use setuptools (easy_install) to 
+install wxpython :( See 
+http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error
 
 .. links..
 .. _Python: http://www.python.org/
