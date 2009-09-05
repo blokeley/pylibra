@@ -18,14 +18,16 @@
 
 """Unit tests for libra module."""
 from __future__ import with_statement
+import csv
+import logging
 import os
 import sys
-# Fiddle module loading path to get utils
+import unittest
+
+# Add pylibra to module loading path
 sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
 import libra
 
-import csv
-import unittest
 
 class TestWritetofile(unittest.TestCase):
 
@@ -39,11 +41,11 @@ class TestWritetofile(unittest.TestCase):
     def tearDown(self):
         if os.path.isfile(self._FILENAME): os.remove(self._FILENAME)
 
-    def testWrite(self):
+    def test_write(self):
         """Tests fileio.write() method."""
         inputdata = [self.row]
         core = libra.Libra(self._FILENAME)
-        core.writetofile(inputdata)
+        core.write(inputdata)
 
         with open(self._FILENAME) as f:
             dataReader = csv.reader(f)
@@ -53,13 +55,13 @@ class TestWritetofile(unittest.TestCase):
 
         self.assertEqual(result, [self.stampedrow,])
 
-    def testMultipleRows(self):
+    def test_multiple_rows(self):
         """Tests multiple rows in 1 write."""
         # The first row should be rejected because we only write the last
         # complete row of data to disk
         inputdata = [self.row, self.row]
         core = libra.Libra(self._FILENAME)
-        core.writetofile(inputdata)
+        core.write(inputdata)
 
         with open(self._FILENAME) as f:
             dataReader = csv.reader(f)
@@ -72,12 +74,12 @@ class TestWritetofile(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
-    def testMultipleWrites(self):
+    def test_multiple_writes(self):
         """Tests multiple writes."""
         inputdata = [self.row]
         core = libra.Libra(self._FILENAME)
-        core.writetofile(inputdata)
-        core.writetofile(inputdata)
+        core.write(inputdata)
+        core.write(inputdata)
 
         with open(self._FILENAME) as f:
             dataReader = csv.reader(f)

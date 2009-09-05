@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 # Copyright 2008 Tom Oakley
 # This file is part of pylibra.
@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra.  If not, see http://www.gnu.org/licenses/
 
 import serial
 import time
@@ -23,37 +23,39 @@ import unittest
 WAIT = 0.05 # Delay for serial comms in seconds
 
 class TestConnection(unittest.TestCase):
-    'Quick test to check serial port.'
+    """Quick test to check serial port."""
 
     _msg = 'Hello!'
 
     def setUp(self):
+        """Overwrites `TestCase.setUp()`"""
         # Open the serial port
         #self.readPort = serial.Serial('/dev/ttyUSB0')  # Linux
         #self.writePort = serial.Serial('/dev/ttyUSB1') # Linux
-        self.readPort = serial.Serial('COM1')   # Windows
-        self.writePort = serial.Serial('COM2')  # Windows
+        self.readPort = serial.Serial('COM9')   # Windows
+        self.writePort = serial.Serial('COM12')  # Windows
         # Clear the ports
         self.readPort.flushInput()
         self.writePort.flushOutput()
 
     def tearDown(self):
+        """Overwrites `TestCase.tearDown()`"""
         # Close the serial port
         self.readPort.close()
         self.writePort.close()
 
-    def testConn(self):
+    def test_conn(self):
         self.assertNotEqual(self.readPort, None)
         self.assertNotEqual(self.writePort, None)
 
-    def testReadWrite(self):
+    def test_read_write(self):
         self.writePort.write(self._msg)
         time.sleep(WAIT) # Wait for serial port
         port = self.readPort
         incoming = port.read(port.inWaiting())
         self.assertEqual(incoming, self._msg)
 
-    def testBadReadWrite(self):
+    def test_bad_read_write(self):
         self.writePort.write(self._msg + 'rubbish')
         time.sleep(WAIT) # Wait for serial port
         port = self.readPort

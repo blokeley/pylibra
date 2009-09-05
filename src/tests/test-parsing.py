@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
 
-'Unit tests for the parsing module.'
+"""Unit tests for the parsing module."""
 
 import os
 import sys
@@ -56,33 +56,33 @@ class TestRegexParser(unittest.TestCase):
         self.parser = None
         result = None
     
-    def testInitialCallback(self):
+    def test_initial_callback(self):
         self.parser = parsing.RegexParser(self.regex, callback)
         self.assertTrue([callback], self.parser._callbacks)
         
-    def testAddCallback(self):
+    def test_add_callback(self):
         self.assertEqual([], self.parser._callbacks)
         self.parser.addDataCallback(callback)
         self.assertEqual([callback], self.parser._callbacks)
 
-    def testCallCallback(self):
+    def test_call_callback(self):
         self.parser.addDataCallback(callback)
         self.parser.parse(self.input)
         self.assertEqual([('ST', '12.34', 'g')], result)
 
-    def testMultipleCalls(self):
+    def test_multiple_calls(self):
         self.parser.addDataCallback(callback)
         self.parser.parse(self.input)
         self.assertEqual([('ST', '12.34', 'g')], result)
         self.parser.parse('ST 12.35 g')
         self.assertEqual([('ST', '12.35', 'g')], result)
     
-    def testSingleParsing(self):
+    def test_single_parsing(self):
         for input, output in REGEXTESTS:
             self.p = parsing.RegexParser(OXFORDREGEX)
             self.assertEqual(output, self.p.parse(input))
 
-    def testMultipleParsing(self):
+    def test_multiple_parsing(self):
         self.p = parsing.RegexParser(OXFORDREGEX)
 
         for input, output in REGEXTESTS:
@@ -90,12 +90,12 @@ class TestRegexParser(unittest.TestCase):
 
 class TestWordParser(unittest.TestCase):
     
-    def testSingleParsing(self):
+    def test_single_parsing(self):
         for input, output in WORDTESTS:
             self.p = parsing.WordParser()
             self.assertEqual(output, self.p.parse(input))
 
-    def testMultipleParsing(self):
+    def test_multiple_parsing(self):
         self.p = parsing.WordParser()
         
         for input, output in WORDTESTS:

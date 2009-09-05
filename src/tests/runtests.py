@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright 2008 Tom Oakley
 # This file is part of pylibra.
@@ -14,15 +14,16 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra.  If not, see http://www.gnu.org/licenses/
 
-'Runs all test cases in current directory.'
+"""Runs all test cases in current directory."""
 
+import logging
 import os
 import re
 import unittest
 
-def gettests(directory='.'):
+def get_tests(directory='.'):
     'Returns a test suite containing all of the tests in the given directory.'
     files = os.listdir(directory)
     tests = re.compile("^test.*py$")
@@ -34,4 +35,5 @@ def gettests(directory='.'):
     return unittest.TestSuite(map(loader, modules))
 
 if __name__ == "__main__":
-    unittest.main(defaultTest='gettests')
+    logging.basicConfig()
+    unittest.main(defaultTest='get_tests')
