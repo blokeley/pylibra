@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
@@ -14,13 +14,10 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra. If not, see http://www.gnu.org/licenses/
 
 """Core libra functions."""
 from __future__ import with_statement
-# User modules
-import parsing
-import utils
 
 # Standard modules
 import ConfigParser
@@ -31,8 +28,13 @@ import serial
 import sys
 import time
 
+# User modules
+import parsing
+import utils
+
+
 # Version must be a string but be parsable to float by py2exe.
-VERSION='0.3'
+VERSION='0.4'
 
 
 def timestamp(mylist):
@@ -42,7 +44,7 @@ def timestamp(mylist):
     return mylist
 
 
-def readSerialConfig(configFile='libra.cfg'):
+def read_serial_config(configFile='libra.cfg'):
     """Reads configuration from given file."""
     # Try given config file
     if not os.path.isfile(configFile):
@@ -59,17 +61,16 @@ def readSerialConfig(configFile='libra.cfg'):
     return settings
 
 
-def getColumns(**settings):
+def get_columns(**settings):
     """Returns the data column names."""
     if not settings:
-        settings = readSerialConfig()
+        settings = read_serial_config()
 
     # Get the column headings
-    # TODO: use settings.get() to provide a default empty list
-    columns = settings['columns'].split(',')
+    columns = settings.get('columns', 'Data').split(',')
 
     # Remove empty column headings
-    if '' in columns:
+    while '' in columns:
         columns.remove('')
     return columns
 
@@ -99,20 +100,22 @@ class Libra(object):
              data = self.port.read(bytes)
              self.parser.parse(data)
     
-    def startParser(self, **settings):
+    def start_parser(self, **settings):
         """Starts parser listening for serial data."""
-        self.stopParser()
-        if not settings: settings = readSerialConfig()
+        self.stop_parser()
+        if not settings:
+            settings = read_serial_config()
         
         self._logger.info('Parser starting')
 
         # Set up the serial port
-        self.port = serial.Serial(settings['port'],
-        int(settings.get('baudrate', 2400)),
-        int(settings.get('bytesize', serial.EIGHTBITS)),
-        settings.get('parity', serial.PARITY_NONE),
-        int(settings.get('stopbits', serial.STOPBITS_ONE)))
-        self._logger.warning(msg)
+        self.port = serial.Serial(
+            settings['port'],
+            int(settings.get('baudrate', 2400)),
+            int(settings.get('bytesize', serial.EIGHTBITS)),
+            settings.get('parity', serial.PARITY_NONE),
+            int(settings.get('stopbits', serial.STOPBITS_ONE))
+            )
         
         try:
             # If config file has a regex, use a RegexParser
@@ -126,7 +129,7 @@ class Libra(object):
         self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
         self.timer.start()
         
-    def stopParser(self):
+    def stop_parser(self):
         """Stops the parser."""
         self._logger.info('Parser stopping')
         try:
@@ -135,9 +138,9 @@ class Libra(object):
         except: pass
 
     def write(self, data):
-        writetofile(self.filename, data)
+        write_to_file(self.filename, data)
 
-def writetofile(filename, data):
+def write_to_file(filename, data):
     """Writes the data to the given filename.
 
     filename - the filename to write to

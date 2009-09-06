@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see http://www.gnu.org/licenses/.
+# along with pylibra. If not, see http://www.gnu.org/licenses/
 
 """Entry point for using text (command line) user interface."""
 
@@ -56,8 +56,9 @@ def main():
     argsParser.add_option('-o', '--outfile', dest='outfile',
                           help='output data to outfile (%default)',
                           default='data.csv')
-    options, args = argsParser.parse_args()
+    options = argsParser.parse_args()[0]
 
+    _LOGGER.info('Starting pylibra' + '-' * 30)
     _LOGGER.debug('Options: ' + str(options))
 
     # Backup the old data file if it exists
@@ -71,12 +72,12 @@ def main():
     app = libra.Libra(options.outfile)
     app.datacallbacks.append(echo)
 
-    columns = libra.getColumns()
+    columns = libra.get_columns()
     if columns:
-        libra.writetofile(options.outfile, (columns,))
+        libra.write_to_file(options.outfile, (columns,))
 
     # Start the parser
-    app.startParser()
+    app.start_parser()
     
     # Block until quit command is received
     while True:
@@ -85,17 +86,15 @@ def main():
             break
     
     # Stop the parser
-    app.stopParser()
+    app.stop_parser()
     print 'Quitting.'
+    _LOGGER.info('Exit OK.' + '-' * 30)
 
 
 if '__main__' == __name__:
     try:
-        _LOGGER.info('Starting pylibra' + '-' * 30)
         main()
-        _LOGGER.info('Exit OK.' + '-' * 30)
     except Exception:
         _LOGGER.exception('Unhandled exception.')
     finally:
         logging.shutdown()
-

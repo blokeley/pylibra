@@ -28,7 +28,7 @@ class TestConnection(unittest.TestCase):
     _msg = 'Hello!'
 
     def setUp(self):
-        """Overwrites `TestCase.setUp()`"""
+        """Overrides `TestCase.setUp()`"""
         # Open the serial port
         #self.readPort = serial.Serial('/dev/ttyUSB0')  # Linux
         #self.writePort = serial.Serial('/dev/ttyUSB1') # Linux
@@ -39,7 +39,7 @@ class TestConnection(unittest.TestCase):
         self.writePort.flushOutput()
 
     def tearDown(self):
-        """Overwrites `TestCase.tearDown()`"""
+        """Overrides `TestCase.tearDown()`"""
         # Close the serial port
         self.readPort.close()
         self.writePort.close()

@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python
 #
 # Copyright 2008 Tom Oakley
 # This file is part of pylibra.
@@ -14,19 +14,21 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra. If not, see http://www.gnu.org/licenses/
 
 """Script to create Windows executable.
 
 Example:
 >>>python setup.py py2exe
-"""
 
-import libra
+"""
 
 from distutils.core import setup
 import py2exe
 import shutil
+
+import libra
+
 
 # Create the executable
 setup(

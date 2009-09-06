@@ -50,13 +50,13 @@ WORDTESTS =(
 class TestRegexParser(unittest.TestCase):
     
     def setUp(self):
-        """Overwrites `TestCase.setUp()`."""
+        """Overrides `TestCase.setUp()`."""
         self.regex = r'(ST|OL)\s*(\d+\.\d+)\s*(\S?)'
         self.parser = parsing.RegexParser(self.regex)
         self.input = 'x ST 12.34 g x'
     
     def tearDown(self):
-        """Overwrites `TestCase.tearDown()`."""
+        """Overrides `TestCase.tearDown()`."""
         self.parser = None
         result = None
     
@@ -66,16 +66,16 @@ class TestRegexParser(unittest.TestCase):
         
     def test_add_callback(self):
         self.assertEqual([], self.parser._callbacks)
-        self.parser.addDataCallback(callback)
+        self.parser.add_data_callback(callback)
         self.assertEqual([callback], self.parser._callbacks)
 
     def test_call_callback(self):
-        self.parser.addDataCallback(callback)
+        self.parser.add_data_callback(callback)
         self.parser.parse(self.input)
         self.assertEqual([('ST', '12.34', 'g')], result)
 
     def test_multiple_calls(self):
-        self.parser.addDataCallback(callback)
+        self.parser.add_data_callback(callback)
         self.parser.parse(self.input)
         self.assertEqual([('ST', '12.34', 'g')], result)
         self.parser.parse('ST 12.35 g')

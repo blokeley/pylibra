@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra. If not, see http://www.gnu.org/licenses/
 
 import re
 import logging
@@ -24,34 +24,44 @@ class AbstractParser(object):
     'Base class of parsers. Should not be initialized itself.'
     
     def __init__(self, *callbacks):
-        if callbacks:
-            self._callbacks = list(callbacks)
-        else:
-            self._callbacks = []
-
+        self._callbacks = set()
+        for callback in callbacks:
+            self.add_data_callback(callback)
         self._logger = logging.getLogger(__name__)
     
-    def addDataCallback(self, callback):
-        'Adds callback to list of functions to call.'
-        if callback: self._callbacks.append(callback)
+    def add_data_callback(self, callback):
+        """Add callback to list of functions to call."""
+        if callback:
+            self._callbacks.add(callback)
             
-    def removeDataCallback(self, callback):
-        'Removes callback from list of functions to call'
-        if callback: self._callbacks.remove(callback)
+    def remove_data_callback(self, callback):
+        """Remove callback from list of functions to call."""
+        try:
+            self._callbacks.remove(callback)
+        except KeyError:
+            pass
     
-    def _callDataCallbacks(self, results):
+    def _call_data_callbacks(self, results):
         if not self._callbacks:
             self._logger.warning("No callbacks listening for data.")
             return
         for callback in self._callbacks:
             callback(results)
             
-    def parse(self, data):
+    def parse(self):
+        """Must be overridden by subclass.
+
+        Typical definition is:
+        def parse(self, data)
+
+        """
+
         msg = 'parse() must be overridden by subclasses'
         raise NotImplementedError(msg)
                     
+
 class RegexParser(AbstractParser):
-    'Stores incoming data in a buffer and parses it using a regular expression.'
+    """Store incoming data in a buffer and parse it using a regular expression."""
 
     def __init__(self, regex, *callbacks):
         AbstractParser.__init__(self, *callbacks)
@@ -59,11 +69,12 @@ class RegexParser(AbstractParser):
         self._buffer = ''
                 
     def parse(self, data):
-        '''Adds text to buffer, parses it and calls callbacks.
+        """Add text to buffer, parses it and calls callbacks.
         
         @param data: a string of data to parse.
         @return: a list of lines, each line being a tuple of matched data.
-        '''
+
+        """
         self._buffer += data
         # Use the regex to search for data
         results = self._pattern.findall(self._buffer)
@@ -72,7 +83,7 @@ class RegexParser(AbstractParser):
             # Remove the data from the buffer
             self._buffer = self._pattern.sub('', self._buffer)
             # Tell the callbacks about new data
-            self._callDataCallbacks(results)
+            self._call_data_callbacks(results)
             
         # If the buffer is getting too long, slice off the first half
         if len(self._buffer) > _MAXBUFFERSIZE:
@@ -81,13 +92,16 @@ class RegexParser(AbstractParser):
         return results
         
     def __str__(self):
-        "Returns a string representation of the parser."
+        """Return a string representation of the parser."""
         return 'Data: %s, Callbacks: %s' % (self._data, self._callbacks)
- 
+
+
 class WordParser(AbstractParser):
-    '''Stores incoming data in a buffer and returns 
-    a list of lines. Each line is a tuple of words.
-    '''
+    """Store incoming data in a buffer and returns a list of lines.
+
+    Each line is a tuple of words.
+
+    """
     
     def __init__(self, *callbacks):
         AbstractParser.__init__(self, *callbacks)
@@ -96,11 +110,12 @@ class WordParser(AbstractParser):
         self._buffer = ''
         
     def parse(self, data):
-        '''Adds text to buffer, parses it and calls callbacks.
+        """Add text to buffer, parse it and call callbacks.
 
         @param data: a string of data to parse.
         @return: a list of lines, each line being a tuple of words.
-        '''
+
+        """
         self._buffer += data
         results = []
         lastlineindex = 0
@@ -123,7 +138,8 @@ class WordParser(AbstractParser):
                         lastwordindex = word.end()
                         words.append(word.group(0))
                 
-                if words: results.append(tuple(words))
+                if words:
+                    results.append(tuple(words))
         
         # Remove data up to end of matches
         lastmatchindex = lastlineindex + lastwordindex
@@ -133,5 +149,6 @@ class WordParser(AbstractParser):
         if len(self._buffer) > _MAXBUFFERSIZE:
             self._buffer = self._buffer[(_MAXBUFFERSIZE/2):]        
         
-        if results: self._callDataCallbacks(results)
+        if results:
+            self._call_data_callbacks(results)
         return results

@@ -59,23 +59,27 @@ Developer instructions
 
 Tools
 -----
-To develop Libra you simply need a python interpreter and a couple 
+To develop pylibra you need a python interpreter and a couple
 of libraries:
 
 * Python_ 2.6+ interpreter. Note that 3.0+ will not work.
-* pySerial_ serial port library.
-* py2exe_ to create the Windows executable.
+* pySerial_ serial port library. Note that if you use setuptools
+  (`easy_install pyserial`) then py2exe will not be able to find the serial
+  module! The way around this is to unzip the .egg file (see
+  http://www.py2exe.org/index.cgi/ExeWithEggs for more info).
+* py2exe_ to create the Windows executable. At the time of writing, trying to
+  `easy_install py2exe` does not work!
+* wxPython_ for the GUI. Note that `easy_install wxpython` does not work!
+  See
+  http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error
 * A good text editor. Note that jEdit has a syntax highlighting mode for
-  reStructuredText.
+  reStructuredText. Netbeans has a good Python plugin.
   
-Note that at the time of writing you cannot use setuptools (easy_install) to 
-install wxpython :( See 
-http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error
-
 .. links..
 .. _Python: http://www.python.org/
 .. _pySerial: http://pyserial.wiki.sourceforge.net/pySerial
 .. _py2exe: http://www.py2exe.org/
+.. _wxPython: http://www.wxpython.org/
 .. _docutils: http://docutils.sourceforge.net/docs/
 
 Recommended workflow

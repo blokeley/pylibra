@@ -16,16 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see http://www.gnu.org/licenses/.
 #
-# Style note: this module deviates from http://www.python.org/dev/peps/pep-0008/
+# Style note: some methods in this module deviate from
+# http://www.python.org/dev/peps/pep-0008/
 # because wxPython uses Microsoft C++ styles and we have to override some
 # wxPython methods.
 #
 # FIXME: Make Grid fill available area. Test with long strings.
-# TODO: Check unit tests work
-# TODO: Make parser start on different thread from GUI
-# TODO: Check pylibra command line still works
-# TODO: Add decent help support
-# TODO: Release as v0.4
 
 """Graphical user interface for pylibra."""
 
@@ -54,6 +50,7 @@ class App(wx.App):
         wx.App.__init__(self, redirect=False)
 
     def OnInit(self):
+        """Override `wx.App.OnInit()`."""
         # Read or create the model (table)
         # TODO: Read columns from config file
         logging.config.fileConfig('logging.cfg')
@@ -66,13 +63,14 @@ class App(wx.App):
             os.rename(outfile, backup)
 
         # Get column headings
-        columns = libra.getColumns()
-        if columns: libra.writetofile(outfile, (columns,))
+        columns = libra.get_columns()
+        if columns:
+            libra.write_to_file(outfile, (columns,))
  
         # Set up the serial port reader
         controller = libra.Libra(outfile)
         self.table = Table(columns)
-        controller.datacallbacks.append(self.table.DataReceived)
+        controller.datacallbacks.append(self.table.data_received)
 
         self.frame = Frame(None, 'pylibra', self.table, controller)
         self.frame.Show()
@@ -83,14 +81,14 @@ class App(wx.App):
         """Clear up (close any db connections etc.).
 
         Called after last top-leve frame is closed.
-
+        Overrides `wx.App.OnExit()`.
         """
         # Placeholder for later code
 
-    def ExceptHook(self, type, value, tb):
+    def except_hook(self, type, value, tb):
         """Display any uncaught exception in a dialog box."""
         _LOGGER = logging.getLogger('App.ExceptHook')
-        _LOGGER.error(value)
+        _LOGGER.error(''.join(traceback.format_exception(type, value, tb)))
 
         msg = '%s\n%s\n\n%s' % (_EXCEPTION_MSG, value, _QUIT_MSG)
         dlg = wx.MessageDialog(self.frame, msg, 'Error', wx.YES_NO | wx.ICON_ERROR)
@@ -105,6 +103,7 @@ class Frame(wx.Frame):
     """The application's main frame (window)."""
     
     def __init__(self, parent, title, table, controller):
+        """Override `wx.Frame.__init__()`."""
         wx.Frame.__init__(self, parent, title=title, size=(_RESOLUTION_VGA))
         
         self.statusbar = self.CreateStatusBar()
@@ -115,17 +114,17 @@ class Frame(wx.Frame):
         # Add the main panel
         self.panel = wx.Panel(self)
         self.startbutton = wx.Button(self.panel, label='Start')
-        self.Bind(wx.EVT_BUTTON, self.StartButtonClick, self.startbutton)
+        self.Bind(wx.EVT_BUTTON, self.start_button_click, self.startbutton)
 
         self.stopbutton = wx.Button(self.panel, label='Stop')
-        self.Bind(wx.EVT_BUTTON, self.StopButtonClick, self.stopbutton)
+        self.Bind(wx.EVT_BUTTON, self.stop_button_click, self.stopbutton)
 
         self.helpbutton = wx.Button(self.panel, label='Help')
-        self.Bind(wx.EVT_BUTTON, self.HelpButtonClick, self.helpbutton)
+        self.Bind(wx.EVT_BUTTON, self.help_button_click, self.helpbutton)
 
         self.table = table
         self.grid = Grid(self.panel, self.table)
-        self.table.AddObserver(self.grid)
+        self.table.add_observer(self.grid)
 
         # Layout
         buttonsizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -138,17 +137,17 @@ class Frame(wx.Frame):
         mainsizer.Add(self.grid, wx.EXPAND)
         self.panel.SetSizer(mainsizer)
 
-        self.Reading = False
+        self._reading = False
 
-    def StartButtonClick(self, evt):
-        self.controller.startParser()
+    def start_button_click(self, evt):
+        self.controller.start_parser()
         self.Reading = True
 
-    def StopButtonClick(self, evt):
-        self.controller.stopParser()
+    def stop_button_click(self, evt):
+        self.controller.stop_parser()
         self.Reading = False
 
-    def HelpButtonClick(self, evt):
+    def help_button_click(self, evt):
         webbrowser.open_new_tab(_URL_HELP)
 
     def OnAbout(self, evt):
@@ -156,24 +155,25 @@ class Frame(wx.Frame):
                     wx.OK | wx.ICON_INFORMATION, self)
 
     def OnExit(self, evt):
+        """Override `wx.Frame.OnExit()`."""
         self.Close()
 
-    def _SetReading(self, b):
+    @property
+    def reading(self):
+        """Whether the app is reading the serial port."""
+        return self._reading
+
+    @reading.setter
+    def reading(self, b):
         """Sets whether the serial reading is active."""
         if b:
-            self.reading = True
+            self._reading = True
             self.startbutton.Enable(False)
             self.stopbutton.Enable(True)
         else:
-            self.reading = False
+            self._reading = False
             self.startbutton.Enable(True)
             self.stopbutton.Enable(False)
-
-    def _IsReading(self):
-        """Whether the app is reading the serial port."""
-        return self.reading
-
-    Reading = property(_IsReading, _SetReading)
 
 
 class Table(wx.grid.PyGridTableBase):
@@ -184,21 +184,21 @@ class Table(wx.grid.PyGridTableBase):
         self.columns = columns
         
         # A list of observers (such as grids) to refresh after data changes
-        self.views = []
+        self.views = set()
+        # A list of lists holding the data
         self.data = []
 
-    def AddObserver(self, observer):
-        # TODO: Change self.views to a set and remove if statement
-        if observer not in self.views:
-            self.views.append(observer)
+    def add_observer(self, observer):
+        self.views.add(observer)
 
-    def RemoveObserver(self, observer):
+    def remove_observer(self, observer):
         try:
             self.views.remove(observer)
-        except ValueError:
+        except KeyError:
             pass
 
     def GetNumberRows(self):
+        """Override `wx.grid.PyGridTableBase.GetNumberRows()`."""
         numrows = len(self.data)
         return numrows
 
@@ -224,7 +224,7 @@ class Table(wx.grid.PyGridTableBase):
     def SetValue(self, row, col, value):
         self.data[row][col] = value
 
-    def DataReceived(self, data):
+    def data_received(self, data):
         """Add new data to the table.
 
         data -- a list of lists containing strings of data
@@ -249,6 +249,7 @@ class Grid(wx.grid.Grid):
     
     """
     def __init__(self, parent, table):
+        """Override `wx.grid.Grid.__init__()`."""
         wx.grid.Grid.__init__(self, parent)
         self.SetTable(table)
         self.EnableEditing(False)
@@ -257,5 +258,5 @@ class Grid(wx.grid.Grid):
 if __name__ == "__main__":
     app = App()
     # Set up the exception handler
-    sys.excepthook = app.ExceptHook
+    sys.excepthook = app.except_hook
     app.MainLoop()
