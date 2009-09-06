@@ -21,19 +21,33 @@
 import logging
 import os
 import re
+import sys
+import time
 import unittest
 
-def get_tests(directory='.'):
-    'Returns a test suite containing all of the tests in the given directory.'
+def get_tests(directory=os.curdir):
+    """Return a test suite containing all of the tests in the given directory."""
     files = os.listdir(directory)
-    tests = re.compile("^test.*py$")
-    files = filter(tests.search, files)
-    filenameToModuleName = lambda f: os.path.splitext(f)[0]
-    moduleNames = map(filenameToModuleName, files)
-    modules = map(__import__, moduleNames)
+    pattern = re.compile("^test.*py$")
+    moduleNames = [os.path.splitext(file_)[0] for file_ in files if pattern.search(file_)]
+    modules = [__import__(mod) for mod in moduleNames]
     loader = unittest.defaultTestLoader.loadTestsFromModule
-    return unittest.TestSuite(map(loader, modules))
+    return unittest.TestSuite(loader(mod) for mod in modules)
+
+def setup_logging():
+    """Configure loggers without need for a config file."""
+    logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(name)s %(levelname)s %(message)s',
+                    filename='%s-tests.log' % time.strftime('%Y-%m-%d_%H-%M-%S'),
+                    filemode='w')
+
+def append_src_path():
+    """Append the directory of source files to sys.path."""
+    src_path = os.path.dirname(os.getcwd())
+    if not src_path in sys.path:
+        sys.path.append(src_path)
+
 
 if __name__ == "__main__":
-    logging.basicConfig()
+    setup_logging()
     unittest.main(defaultTest='get_tests')

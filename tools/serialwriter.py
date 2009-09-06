@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
@@ -14,20 +14,24 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra. If not, see http://www.gnu.org/licenses/
 
-'Utility to write data to the given serial port.'
-
-import os
-import sys
-# Fiddle module loading path to get utils
-sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
-import utils
+"""Utility to write data to the given serial port."""
 
 import logging
 import optparse
-import serial
+import os
+import sys
 import time
+
+import serial
+
+# Fiddle module loading path to get utils
+src_path = os.path.join(os.path.dirname(os.getcwd()), 'src', 'pylibra')
+if src_path not in sys.path:
+    sys.path.append(src_path)
+
+import utils
 
 def main():
     # Flush stdout immediately after writing

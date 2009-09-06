@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright 2008 Tom Oakley
 # This file is part of pylibra.
@@ -14,18 +14,19 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra.  If not, see http://www.gnu.org/licenses/
 
 """Unit tests for libra module."""
+
 from __future__ import with_statement
 import csv
-import logging
 import os
-import sys
 import unittest
 
-# Add pylibra to module loading path
-sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
+import runtests
+# Add parent directory to python path
+runtests.append_src_path()
+
 import libra
 
 

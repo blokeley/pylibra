@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 #
 # Copyright 2008 Tom Oakley 
 # This file is part of pylibra.
@@ -14,17 +14,19 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see <http://www.gnu.org/licenses/>.
+# along with pylibra.  If not, see http://www.gnu.org/licenses/
 
 """Unit tests for the parsing module."""
 
-import os
-import sys
-# Fiddle module loading path to get parsing module
-sys.path.append(os.path.join(os.path.dirname(os.getcwd()), 'pylibra'))
+import logging
+import unittest
+
+import runtests
+# Add parent directory to python path
+runtests.append_src_path()
+
 import parsing
 
-import unittest
 
 def callback(data):
     global result
@@ -48,11 +50,13 @@ WORDTESTS =(
 class TestRegexParser(unittest.TestCase):
     
     def setUp(self):
+        """Overwrites `TestCase.setUp()`."""
         self.regex = r'(ST|OL)\s*(\d+\.\d+)\s*(\S?)'
         self.parser = parsing.RegexParser(self.regex)
         self.input = 'x ST 12.34 g x'
     
     def tearDown(self):
+        """Overwrites `TestCase.tearDown()`."""
         self.parser = None
         result = None
     
@@ -102,4 +106,5 @@ class TestWordParser(unittest.TestCase):
             self.assertEqual(output, self.p.parse(input))
    
 if '__main__' == __name__:
+    logging.basicConfig()
     unittest.main()
