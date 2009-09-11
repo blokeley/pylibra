@@ -27,4 +27,4 @@ dist/
 build/
 *.csv
 *.bak
-
+*.log
