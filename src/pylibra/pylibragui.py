@@ -85,7 +85,8 @@ class App(wx.App):
         Called after last top-leve frame is closed.
         Overrides `wx.App.OnExit()`.
         """
-        # Placeholder for later code
+        _LOGGER = logging.getLogger('App.OnExit')
+        _LOGGER.info('Exit OK')
 
     def except_hook(self, type, value, tb):
         """Display any uncaught exception in a dialog box."""
