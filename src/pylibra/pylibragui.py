@@ -48,6 +48,8 @@ class App(wx.App):
     
     def __init__(self):
         wx.App.__init__(self, redirect=False)
+        # Set up the exception handler
+        sys.excepthook = self.except_hook
 
     def OnInit(self):
         """Override `wx.App.OnInit()`."""
@@ -257,6 +259,4 @@ class Grid(wx.grid.Grid):
 
 if __name__ == "__main__":
     app = App()
-    # Set up the exception handler
-    sys.excepthook = app.except_hook
     app.MainLoop()
