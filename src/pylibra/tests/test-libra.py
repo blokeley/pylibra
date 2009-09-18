@@ -25,7 +25,7 @@ import unittest
 
 import runtests
 # Add parent directory to python path
-runtests.append_src_path()
+runtests.add_path(os.pardir)
 
 import libra
 

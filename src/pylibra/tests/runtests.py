@@ -1,23 +1,7 @@
 #!/usr/bin/env python
-#
-# Copyright 2008 Tom Oakley
-# This file is part of pylibra.
-#
-# pylibra is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# pylibra is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with pylibra.  If not, see http://www.gnu.org/licenses/
+"""Run all test cases."""
 
-"""Runs all test cases in current directory."""
-
+import functools
 import logging
 import os
 import re
@@ -25,14 +9,6 @@ import sys
 import time
 import unittest
 
-def get_tests(directory=os.curdir):
-    """Return a test suite containing all of the tests in the given directory."""
-    files = os.listdir(directory)
-    pattern = re.compile("^test.*py$")
-    moduleNames = [os.path.splitext(file_)[0] for file_ in files if pattern.search(file_)]
-    modules = [__import__(mod) for mod in moduleNames]
-    loader = unittest.defaultTestLoader.loadTestsFromModule
-    return unittest.TestSuite(loader(mod) for mod in modules)
 
 def setup_logging():
     """Configure loggers without need for a config file."""
@@ -41,13 +17,93 @@ def setup_logging():
                     filename='%s-tests.log' % time.strftime('%Y-%m-%d_%H-%M-%S'),
                     filemode='w')
 
-def append_src_path():
-    """Append the directory of source files to sys.path."""
-    src_path = os.path.dirname(os.getcwd())
-    if not src_path in sys.path:
-        sys.path.append(src_path)
+
+def todo(func):
+    """Decorator that ignores exceptions raised by given unittest method.
+
+    Use to annotate test methods for code that may not be written yet.
+    If there are failures in the annotated test method ignore the failure; 
+    if the test unexpectedly succeeds, raise an AssertionError.
+    
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        logging.warning('%s is marked "todo"' % func.__name__)
+        try:
+            func(*args, **kwargs)
+            succeeded = True
+        except:
+            succeeded = False
+        assert succeeded is False, "%s marked TODO but passed" % func.__name__
+    return wrapper
+
+
+def ignore(func):
+    """Decorator that ignores the given function and logs a warning."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        logging.warning('Ignoring %s' % func.__name__)
+    return wrapper
+
+
+def add_path(path=os.curdir):
+    """Add the path to sys.path if it is not already present."""
+    abspath = os.path.abspath(path)
+    if abspath not in sys.path:
+        sys.path.append(abspath)
+
+
+def find_modules(path=os.curdir):
+    """Find directories containing python source files and add them to sys.path"""
+    pythonfile_pattern = re.compile(r'^.*\.py$')
+
+    # Walk the directory tree looking for python source
+    for root, dirs, files in os.walk(path):
+        for filename in files:
+            if pythonfile_pattern.search(filename):
+                # File is python source: add its module to sys.path
+                add_path(root)
+
+
+def create_testsuite(names=None):
+    """Return a `unittest.TestSuite` containing tests in names.
+
+    If names is None, search the tree below the current directory for tests.
+    For formats of names see `unittest.defaultTestLoader.loadTestsFromName()`
+
+    """
+
+    # Set up a test suite
+    suite = unittest.TestSuite()
+
+    # Set up the search regex for tests
+    testfile_pattern = re.compile(r'^test.*\.py$')
+
+    # If named tests or modules are given, add them to the suite
+    if names:
+        loader = unittest.defaultTestLoader.loadTestsFromNames
+        suite.addTests(loader(names))
+
+    else:
+        # Walk the directory tree looking for tests
+        loader = unittest.defaultTestLoader.loadTestsFromName
+        for root, dirs, files in os.walk(os.curdir):
+            for filename in files:
+                if testfile_pattern.search(filename):
+                    add_path(root)
+                    # File is a test: add it to the test suite
+                    suite.addTests(loader(os.path.splitext(filename)[0]))
+
+    return suite
 
 
 if __name__ == "__main__":
     setup_logging()
-    unittest.main(defaultTest='get_tests')
+
+    # Add parent directory and sub directories to path
+    add_path(os.pardir)
+    find_modules()
+
+    # Create a TestSuite and run it
+    suite = create_testsuite(sys.argv[1:])
+    unittest.TextTestRunner(verbosity=2).run(suite)
