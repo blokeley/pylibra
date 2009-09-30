@@ -61,7 +61,8 @@ class App(wx.App):
         outfile = 'data.csv'
         if os.path.isfile(outfile):
             backup = outfile[:-4] + '.bak'
-            if os.path.isfile(backup): os.remove(backup)
+            if os.path.isfile(backup):
+                os.remove(backup)
             os.rename(outfile, backup)
 
         # Get column headings
@@ -110,7 +111,7 @@ class Frame(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, size=(_RESOLUTION_VGA))
         
         self.statusbar = self.CreateStatusBar()
-        self.SetIcon(wx.Icon('../resources/dot.ico', wx.BITMAP_TYPE_ICO))
+        self.SetIcon(wx.Icon('resources/dot.ico', wx.BITMAP_TYPE_ICO))
 
         self.controller = controller
 
@@ -137,7 +138,7 @@ class Frame(wx.Frame):
 
         mainsizer = wx.BoxSizer(wx.VERTICAL)
         mainsizer.Add(buttonsizer)
-        mainsizer.Add(self.grid, wx.EXPAND)
+        mainsizer.Add(self.grid, flag=wx.EXPAND)
         self.panel.SetSizer(mainsizer)
 
         self._reading = False

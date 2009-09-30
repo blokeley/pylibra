@@ -66,9 +66,10 @@ class TestRegexParser(unittest.TestCase):
         self.assertTrue([callback], self.parser._callbacks)
         
     def test_add_callback(self):
-        self.assertEqual([], self.parser._callbacks)
+        self.assertFalse(self.parser._callbacks)
         self.parser.add_data_callback(callback)
-        self.assertEqual([callback], self.parser._callbacks)
+        self.assertTrue(callback in self.parser._callbacks)
+        self.assertEqual(1, len(self.parser._callbacks))
 
     def test_call_callback(self):
         self.parser.add_data_callback(callback)
