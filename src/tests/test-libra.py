@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pylibra.  If not, see http://www.gnu.org/licenses/
 
-"""Unit tests for libra module."""
+"""Unit tests for core module."""
 
 from __future__ import with_statement
 import csv
@@ -27,7 +27,7 @@ import runtests
 # Add parent directory to python path
 runtests.add_path(os.pardir)
 
-import libra
+import core
 
 
 class TestWritetofile(unittest.TestCase):
@@ -37,7 +37,7 @@ class TestWritetofile(unittest.TestCase):
         if os.path.isfile(self._FILENAME): os.remove(self._FILENAME)
 
         self.row = [str(x) for x in range(10)]
-        self.stampedrow = libra.timestamp(self.row[:])
+        self.stampedrow = core.timestamp(self.row[:])
 
     def tearDown(self):
         if os.path.isfile(self._FILENAME): os.remove(self._FILENAME)
@@ -45,7 +45,7 @@ class TestWritetofile(unittest.TestCase):
     def test_write(self):
         """Tests fileio.write() method."""
         inputdata = [self.row]
-        core = libra.Libra(self._FILENAME)
+        core = core.DataManager(self._FILENAME)
         core.write(inputdata)
 
         with open(self._FILENAME) as f:
@@ -61,7 +61,7 @@ class TestWritetofile(unittest.TestCase):
         # The first row should be rejected because we only write the last
         # complete row of data to disk
         inputdata = [self.row, self.row]
-        core = libra.Libra(self._FILENAME)
+        core = core.DataManager(self._FILENAME)
         core.write(inputdata)
 
         with open(self._FILENAME) as f:
@@ -78,7 +78,7 @@ class TestWritetofile(unittest.TestCase):
     def test_multiple_writes(self):
         """Tests multiple writes."""
         inputdata = [self.row]
-        core = libra.Libra(self._FILENAME)
+        core = core.DataManager(self._FILENAME)
         core.write(inputdata)
         core.write(inputdata)
 

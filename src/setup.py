@@ -32,7 +32,7 @@ import libra
 
 # Create the executable
 setup(
-version = libra.VERSION,
+version = core.__version__,
 description = 'pylibra command line serial data reader',
 name='pylibra',
 options = {'py2exe': {'bundle_files': 1}},

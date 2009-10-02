@@ -27,7 +27,7 @@ import sys
 # Set up logging before user imports
 logging.config.fileConfig('logging.cfg')
 
-import libra
+import core
 import utils
 
 _LOGGER = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def echo(lines):
     # Take last reading only
     line = lines[-1]
     # Timestamp each line
-    line = libra.timestamp(line)
+    line = core.timestamp(line)
     print line
 
 
@@ -52,7 +52,7 @@ def main():
     sys.stdout = utils.FlushFile(sys.stdout)
 
     # Parse the command line options
-    argsParser = optparse.OptionParser(version=libra.VERSION)
+    argsParser = optparse.OptionParser(version=core.__version__)
     argsParser.add_option('-o', '--outfile', dest='outfile',
                           help='output data to outfile (%default)',
                           default='data.csv')
@@ -69,12 +69,12 @@ def main():
         os.rename(options.outfile, backup)
     
     # Read the settings file
-    app = libra.Libra(options.outfile)
+    app = core.DataManager(options.outfile)
     app.datacallbacks.append(echo)
 
-    columns = libra.get_columns()
+    columns = core.get_columns()
     if columns:
-        libra.write_to_file(options.outfile, (columns,))
+        core.write_to_file(options.outfile, (columns,))
 
     # Start the parser
     app.start_parser()

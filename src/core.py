@@ -17,9 +17,6 @@
 # along with pylibra. If not, see http://www.gnu.org/licenses/
 
 """Core libra functions."""
-from __future__ import with_statement
-
-# Standard modules
 import ConfigParser
 import csv
 import logging
@@ -28,13 +25,11 @@ import serial
 import sys
 import time
 
-# User modules
 import parsing
 import utils
 
 
-# Version must be a string but be parsable to float by py2exe.
-VERSION='0.4'
+__version__ = '0.4.1'
 
 
 def timestamp(mylist):
@@ -75,7 +70,7 @@ def get_columns(**settings):
     return columns
 
 
-class Libra(object):
+class DataManager(object):
     """Main application class that can be run from text ui or gui."""
 
     # Interval between polls in seconds
@@ -126,7 +121,7 @@ class Libra(object):
 
         # Start polling the serial port
         self._logger.debug('Starting timer...')
-        self.timer = utils.PeriodicTimer(Libra.SERIALPOLLINTERVAL, self.poll)
+        self.timer = utils.PeriodicTimer(DataManager.SERIALPOLLINTERVAL, self.poll)
         self.timer.start()
         
     def stop_parser(self):
@@ -139,6 +134,7 @@ class Libra(object):
 
     def write(self, data):
         write_to_file(self.filename, data)
+
 
 def write_to_file(filename, data):
     """Writes the data to the given filename.

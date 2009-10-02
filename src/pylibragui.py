@@ -34,7 +34,7 @@ import traceback
 import wx
 import wx.grid
 
-import libra
+import core
 
 _RESOLUTION_VGA = (640, 480)
 _URL_HELP = 'http://trac-hg.assembla.com/pylibra/wiki/UserInstructions'
@@ -66,12 +66,12 @@ class App(wx.App):
             os.rename(outfile, backup)
 
         # Get column headings
-        columns = libra.get_columns()
+        columns = core.get_columns()
         if columns:
-            libra.write_to_file(outfile, (columns,))
+            core.write_to_file(outfile, (columns,))
  
         # Set up the serial port reader
-        controller = libra.Libra(outfile)
+        controller = core.DataManager(outfile)
         self.table = Table(columns)
         controller.datacallbacks.append(self.table.data_received)
 
