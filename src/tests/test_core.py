@@ -45,8 +45,8 @@ class TestWritetofile(unittest.TestCase):
     def test_write(self):
         """Tests fileio.write() method."""
         inputdata = [self.row]
-        core = core.DataManager(self._FILENAME)
-        core.write(inputdata)
+        myapp = core.DataManager(self._FILENAME)
+        myapp.write(inputdata)
 
         with open(self._FILENAME) as f:
             dataReader = csv.reader(f)
@@ -61,8 +61,8 @@ class TestWritetofile(unittest.TestCase):
         # The first row should be rejected because we only write the last
         # complete row of data to disk
         inputdata = [self.row, self.row]
-        core = core.DataManager(self._FILENAME)
-        core.write(inputdata)
+        myapp = core.DataManager(self._FILENAME)
+        myapp.write(inputdata)
 
         with open(self._FILENAME) as f:
             dataReader = csv.reader(f)
@@ -78,9 +78,9 @@ class TestWritetofile(unittest.TestCase):
     def test_multiple_writes(self):
         """Tests multiple writes."""
         inputdata = [self.row]
-        core = core.DataManager(self._FILENAME)
-        core.write(inputdata)
-        core.write(inputdata)
+        myapp = core.DataManager(self._FILENAME)
+        myapp.write(inputdata)
+        myapp.write(inputdata)
 
         with open(self._FILENAME) as f:
             dataReader = csv.reader(f)
