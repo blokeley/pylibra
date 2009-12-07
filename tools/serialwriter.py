@@ -27,7 +27,7 @@ import time
 import serial
 
 # Fiddle module loading path to get utils
-src_path = os.path.join(os.path.dirname(os.getcwd()), 'src', 'pylibra')
+src_path = os.path.join(os.path.dirname(os.getcwd()), 'src')
 if src_path not in sys.path:
     sys.path.append(src_path)
 
@@ -37,7 +37,6 @@ def main():
     # Flush stdout immediately after writing
     sys.stdout = utils.FlushFile(sys.stdout)
 
-    # Use line ending for current system
     DEFAULT_DATA = 'ST 1.23g OK'
     
     # Parse the command line arguments
@@ -47,7 +46,7 @@ def main():
     argsParser.add_option('-i', help='interval (%default)', default=1.0, type='float')
     argsParser.add_option('-d', help='data to send (%default)', default=DEFAULT_DATA)
     argsParser.add_option('-v', help='verbose', action='store_true', default=False)
-    options, args = argsParser.parse_args()
+    options = argsParser.parse_args()[0]
     
     # Set logging level
     if options.v: 
