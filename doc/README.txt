@@ -3,7 +3,7 @@ pylibra documentation
 =====================
 
 :Author: Tom Oakley
-:Copyright: Copyright (c) 2008, 2009  Tom Oakley.
+:Copyright: Copyright (c) 2008, 2009, 2010  Tom Oakley.
 
 ..
     Permission is granted to copy, distribute and/or modify this document
@@ -16,23 +16,46 @@ pylibra documentation
     Please abide by the format conventions when editing.
 ..
 
-pylibra is an application to read data from a serial port, parse it
-into useful chunks, and write the data to a file. The original version 
-was in Java but this port was written in Python to reduce development 
-time, and for fun!
+``pylibra`` is an application to read data from a serial port, parse it
+into useful chunks, and write the data to a file.
 
 User instructions
 =================
 
+Support
+-------
+If you notice any problems, please `create a new ticket`_.
+
+.. _create a new ticket: http://trac-hg.assembla.com/pylibra/newticket
+
+
 Windows
 -------
+
+Installation
+~~~~~~~~~~~~
 
 #. Download the Windows executable (-win32.zip) from
    http://www.assembla.com/spaces/pylibra/documents
 #. Unzip the ZIP archive to wherever you want it.
 
+Use
+~~~
+
+1. Edit the libra.cfg file to set the correct serial settings and column
+   headings for your data. The regular expression line ("regex") defines how
+   pylibra searches serial data for the data you want. See
+   http://docs.python.org/library/re.html for details on regular expression formats.
+2. For the graphical user interface, run ``pylibragui.exe``
+3. For the command line interface, open a command prompt window 
+   (``cmd.exe``), then use `cd` to change directory to where pylibra is and 
+   run `pylibra.exe`
+
 Linux, OS X etc.
 ----------------
+
+Installation
+~~~~~~~~~~~~
 
 1. Install pyserial. For example, on ubuntu open a terminal and type
    ``apt-get install pyserial``
@@ -44,15 +67,12 @@ Linux, OS X etc.
    * (Developers) Use the mercurial command
      ``hg clone http://hg.assembla.com/pylibra``
 
-Running pylibra
----------------
+Use
+~~~
 
-1. Edit the libra.cfg file to set the correct serial settings and column
-   headings for your data. The regular expression line ("regex") defines how
-   pylibra searches serial data for the data you want. See
-   http://docs.python.org/library/re.html for details on regular expression formats.
-2. On Windows, double-click ``pylibra.exe``.
-3. On other operating systems, open a shell terminal and type ``python pylibra.py``
+Open a shell terminal and type ``python pylibra.py``
+
+
 
 Developer instructions
 ======================
@@ -63,17 +83,13 @@ To develop pylibra you need a python interpreter and a couple
 of libraries:
 
 * Python_ 2.6+ interpreter. Note that 3.0+ will not work.
-* pySerial_ serial port library. Note that if you use setuptools
-  (`easy_install pyserial`) then py2exe will not be able to find the serial
-  module! The way around this is to unzip the .egg file (see
-  http://www.py2exe.org/index.cgi/ExeWithEggs for more info).
+* pySerial_ serial port library.
 * py2exe_ to create the Windows executable. At the time of writing, trying to
   `easy_install py2exe` does not work!
 * wxPython_ for the GUI. Note that `easy_install wxpython` does not work!
   See
   http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error
-* A good text editor. Note that jEdit has a syntax highlighting mode for
-  reStructuredText. Netbeans has a good Python plugin.
+* A good text editor.
   
 .. links..
 .. _Python: http://www.python.org/
@@ -92,7 +108,7 @@ Recommended workflow
 5. If you want to build a Windows executable, open a terminal and run
    ``python setup.py py2exe``.
 6. Test as much as possible.
-7. Update the documentation_ if you make any changes noticeable to the user.
+7. Update the documentation (see below) if you make any changes noticeable to the user.
 8. Commit using ``hg commit -m`` with a helpful commit message, preferably
    referencing the ticket with ``ticket:xx`` where xx is the ticket number.
 9. Create a changegroup file using ``hg bundle --base BASE`` where BASE is the
@@ -100,37 +116,22 @@ Recommended workflow
    changes).
 10. Upload the changegroup file to the ticket and update the ticket.
 
-Documentation
--------------
+Documentation process
+---------------------
 
 1. Update all files under the ``doc`` directory of the source.
-2. Create HTML files and PDFs as necessary. You can use the rst2a_ website to
+2. Create HTML files and PDFs as necessary. If you have installed docutils 
+   (see below), use ``rst2html.py README.txt > README.html`` at the 
+   command prompt.
+   Alternatively, you can use the rst2a_ website to
    create both HTML and PDF files. Note that rst2a_ does not convert internal
    links properly in the HTML output.
 
-Alternatively, if you do not want to use rst2a_, do the following:
-
 .. _rst2a: http://rst2a.com/create/
 
-Windows
-~~~~~~~
+Installing docutils (on Windows)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 1. Download docutils_.
-2. Make sure that ``C:\Python25\Tools\docutils`` is on your %PATH% environment
+2. Make sure that ``C:\Python26\Scripts`` is on your %PATH% environment
    variable.
-3. Open a command prompt.
-4. ``cd`` to the pylibra source doc directory.
-5. Type ``buildhtml.py``.
-
-Ubuntu linux
-~~~~~~~~~~~~
-
-1. Run ``apt-get install docutils``.
-2. Open a terminal.
-3. ``cd`` to the pylibra source doc directory.
-4. Type ``rst-buildhtml``
-
-Support
--------
-Please `create a new ticket`_.
-
-.. _create a new ticket: http://trac-hg.assembla.com/pylibra/newticket

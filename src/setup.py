@@ -24,22 +24,36 @@ Example:
 """
 
 from distutils.core import setup
+import os
 import py2exe
 import shutil
+import zipfile
 
-import libra
+import core
 
+README = os.path.normpath(os.path.join(os.getcwd(), r'..\doc\README.html'))
+DATA_FILES = ['libra.cfg', 'logging.cfg', README]
 
 # Create the executable
 setup(
 version = core.__version__,
-description = 'pylibra command line serial data reader',
-name='pylibra',
+description = 'pylibra serial data reader',
+name='pylibragui',
 options = {'py2exe': {'bundle_files': 1}},
-console = ['pylibra.py'],
+console = ['pylibragui.py'],
 zipfile = None,
-data_files = [('', ['libra.cfg', 'logging.cfg'])]
+data_files = [('', DATA_FILES)]
 )
 
+# Create the ZIP file to export
+os.chdir('dist')
+zfilename = 'pylibragui-%s-win32.zip' % core.__version__
+zfile = zipfile.ZipFile(zfilename, 'w')
+DATA_FILES.append('pylibragui.exe')
+for fname in DATA_FILES:
+    zfile.write(fname)
+zfile.close()
+
 # Clean up
+os.chdir(os.pardir)
 shutil.rmtree('build')

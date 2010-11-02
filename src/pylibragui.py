@@ -36,10 +36,12 @@ import wx.grid
 
 import core
 
-_RESOLUTION_VGA = (640, 480)
+_FRAME_SIZE = (640, 480)
+
 _URL_HELP = 'http://trac-hg.assembla.com/pylibra/wiki/UserInstructions'
+
 _EXCEPTION_MSG = '''An error occurred. This is normally a problem with
-configuration, connection to peripherals, or bad input data.
+configuration (see libra.cfg file), connection to peripherals, or bad input data.
 '''
 _QUIT_MSG = 'Do you want to quit?'
 
@@ -108,7 +110,7 @@ class Frame(wx.Frame):
     
     def __init__(self, parent, title, table, controller):
         """Override `wx.Frame.__init__()`."""
-        wx.Frame.__init__(self, parent, title=title, size=(_RESOLUTION_VGA))
+        wx.Frame.__init__(self, parent, title=title, size=(_FRAME_SIZE))
         
         self.statusbar = self.CreateStatusBar()
         self.SetIcon(wx.Icon('resources/dot.ico', wx.BITMAP_TYPE_ICO))
@@ -137,19 +139,20 @@ class Frame(wx.Frame):
         buttonsizer.Add(self.helpbutton)
 
         mainsizer = wx.BoxSizer(wx.VERTICAL)
-        mainsizer.Add(buttonsizer)
-        mainsizer.Add(self.grid, flag=wx.EXPAND)
+        mainsizer.Add(buttonsizer, 0, flag=wx.EXPAND)
+        mainsizer.Add(self.grid, 1, flag=wx.EXPAND)
+        
         self.panel.SetSizer(mainsizer)
 
-        self._reading = False
+        self.reading = False
 
     def start_button_click(self, evt):
         self.controller.start_parser()
-        self.Reading = True
+        self.reading = True
 
     def stop_button_click(self, evt):
         self.controller.stop_parser()
-        self.Reading = False
+        self.reading = False
 
     def help_button_click(self, evt):
         webbrowser.open_new_tab(_URL_HELP)
@@ -164,12 +167,14 @@ class Frame(wx.Frame):
 
     @property
     def reading(self):
-        """Whether the app is reading the serial port."""
+        """Return whether the app is reading the serial port."""
         return self._reading
 
     @reading.setter
     def reading(self, b):
-        """Sets whether the serial reading is active."""
+        """Set whether the serial reading is active."""
+        logging.info("Setting reading to {0}".format(b))
+        
         if b:
             self._reading = True
             self.startbutton.Enable(False)
@@ -185,7 +190,10 @@ class Table(wx.grid.PyGridTableBase):
 
     def __init__(self, columns):
         wx.grid.PyGridTableBase.__init__(self)
+        
+        # Add Timestamp to column names
         self.columns = columns
+        self.columns.insert(0, 'Timestamp')
         
         # A list of observers (such as grids) to refresh after data changes
         self.views = set()
@@ -193,6 +201,13 @@ class Table(wx.grid.PyGridTableBase):
         self.data = []
 
     def add_observer(self, observer):
+        # Assume that the observer is a wx.grid.Grid and set some column sizes
+        numcols = len(self.columns)
+        col_width = _FRAME_SIZE[0] / (numcols + 1)
+
+        for colnum in range(numcols):
+            observer.SetColSize(colnum, col_width)
+        
         self.views.add(observer)
 
     def remove_observer(self, observer):
@@ -209,11 +224,11 @@ class Table(wx.grid.PyGridTableBase):
     def GetNumberCols(self):
         return len(self.columns)
 
-    def GetColLabelValue(self, col):
-        return self.columns[col]
+    def GetColLabelValue(self, colnum):
+        return self.columns[colnum]
 
-    def GetRowLabelValue(self, row):
-        return row
+    def GetRowLabelValue(self, rownum):
+        return rownum
 
     def IsEmptyCell(self, row, col):
         return self.data[row][col] is not None
@@ -227,23 +242,26 @@ class Table(wx.grid.PyGridTableBase):
 
     def SetValue(self, row, col, value):
         self.data[row][col] = value
-
+        
     def data_received(self, data):
         """Add new data to the table.
 
         data -- a list of lists containing strings of data
         
         """
+        logging.debug('Data received {0}'.format(data))
+        
         for row in data:
+            row = core.timestamp(row)
             self.data.append(row)
-
+            
         msg = wx.grid.GridTableMessage(self,
             wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, len(data))
 
         # Refresh any views such as grids
         for view in self.views:
             view.ProcessTableMessage(msg)
-            #view.ForceRefresh()
+            view.ForceRefresh()
 
 
 class Grid(wx.grid.Grid):

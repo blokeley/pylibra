@@ -29,7 +29,7 @@ import parsing
 import utils
 
 
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 
 def timestamp(mylist):
@@ -50,9 +50,9 @@ def read_serial_config(configFile='libra.cfg'):
     try:
         settings = dict(config.items('serial'))
     except ConfigParser.NoSectionError, e:
-        print 'Check your config file: '
-        for error in e.args: print error
-        sys.exit(2)
+        logging.exception('[serial] section not found. Check your config file.')
+        raise
+    
     return settings
 
 
@@ -72,10 +72,7 @@ def get_columns(**settings):
 
 class DataManager(object):
     """Main application class that can be run from text ui or gui."""
-
-    # Interval between polls in seconds
-    SERIALPOLLINTERVAL = 1
-    
+   
     def __init__(self, filename='data.csv'):
         """Creates the controller.
 
@@ -84,11 +81,16 @@ class DataManager(object):
         self._logger = logging.getLogger(__name__)
         self.filename = filename
         self.datacallbacks = [self.write,]
+        # Interval between polls in seconds
+        settings = read_serial_config()
+        self.interval = float(settings.get('interval', 1.0))
 
     def poll(self):
          """Polls the serial port for data and calls the parser 
          if any is present."""
-         if not self.port.isOpen(): self.port.open()
+         if not self.port.isOpen(): 
+             self.port.open()
+         
          bytes = self.port.inWaiting()
          self._logger.debug('%d bytes waiting' % bytes)
          if bytes: 
@@ -121,7 +123,7 @@ class DataManager(object):
 
         # Start polling the serial port
         self._logger.debug('Starting timer...')
-        self.timer = utils.PeriodicTimer(DataManager.SERIALPOLLINTERVAL, self.poll)
+        self.timer = utils.PeriodicTimer(self.interval, self.poll)
         self.timer.start()
         
     def stop_parser(self):

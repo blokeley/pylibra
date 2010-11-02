@@ -6,12 +6,12 @@
 <meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
 <title>pylibra documentation</title>
 <meta name="author" content="Tom Oakley" />
-<meta name="copyright" content="Copyright (c) 2008, 2009  Tom Oakley." />
+<meta name="copyright" content="Copyright (c) 2008, 2009, 2010  Tom Oakley." />
 <style type="text/css">
 
 /*
 :Author: David Goodger (goodger@python.org)
-:Id: $Id: html4css1.css 5631 2008-08-24 13:01:23Z goodger $
+:Id: $Id: html4css1.css 5951 2009-05-18 18:03:10Z milde $
 :Copyright: This stylesheet has been placed in the public domain.
 
 Default cascading style sheet for the HTML output of Docutils.
@@ -159,11 +159,32 @@ h2.subtitle {
 hr.docutils {
   width: 75% }
 
-img.align-left {
-  clear: left }
+img.align-left, .figure.align-left{
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
 
-img.align-right {
-  clear: right }
+img.align-right, .figure.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: left }
+
+/* div.align-center * { */
+/*   text-align: left } */
 
 ol.simple, ul.simple {
   margin-bottom: 1em }
@@ -294,7 +315,7 @@ ul.auto-toc {
 <tr><th class="docinfo-name">Author:</th>
 <td>Tom Oakley</td></tr>
 <tr><th class="docinfo-name">Copyright:</th>
-<td>Copyright (c) 2008, 2009  Tom Oakley.</td></tr>
+<td>Copyright (c) 2008, 2009, 2010  Tom Oakley.</td></tr>
 </tbody>
 </table>
 <!-- Permission is granted to copy, distribute and/or modify this document
@@ -306,58 +327,75 @@ A copy of the license is included in the file "COPYING_DOCS".
 This document is written in the reStructuredText format.
 Please abide by the format conventions when editing. -->
 <!--  -->
-<p>pylibra is an application to read data from a serial port, parse it
-into useful chunks, and write the data to a file. The original version
-was in Java but this port was written in Python to reduce development
-time, and for fun!</p>
+<p><tt class="docutils literal">pylibra</tt> is an application to read data from a serial port, parse it
+into useful chunks, and write the data to a file.</p>
 <div class="section" id="user-instructions">
 <h1>User instructions</h1>
+<div class="section" id="support">
+<h2>Support</h2>
+<p>If you notice any problems, please <a class="reference external" href="http://trac-hg.assembla.com/pylibra/newticket">create a new ticket</a>.</p>
+</div>
 <div class="section" id="windows">
 <h2>Windows</h2>
+<div class="section" id="installation">
+<h3>Installation</h3>
 <ol class="arabic simple">
 <li>Download the Windows executable (-win32.zip) from
 <a class="reference external" href="http://www.assembla.com/spaces/pylibra/documents">http://www.assembla.com/spaces/pylibra/documents</a></li>
 <li>Unzip the ZIP archive to wherever you want it.</li>
 </ol>
 </div>
-<div class="section" id="linux-os-x-etc">
-<h2>Linux, OS X etc.</h2>
-<ol class="arabic simple">
-<li>Install pyserial. For example, on ubuntu open a terminal and type
-<tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">pyserial</span></tt></li>
-<li>Then either:<ul>
-<li>(Users) Copy the relevant (-src.zip) file from
-<a class="reference external" href="http://www.assembla.com/spaces/pylibra/documents">http://www.assembla.com/spaces/pylibra/documents</a>; or</li>
-<li>(Developers) Use the mercurial command
-<tt class="docutils literal"><span class="pre">hg</span> <span class="pre">clone</span> <span class="pre">http://hg.assembla.com/pylibra</span></tt></li>
-</ul>
-</li>
-</ol>
-</div>
-<div class="section" id="running-pylibra">
-<h2>Running pylibra</h2>
+<div class="section" id="use">
+<h3>Use</h3>
 <ol class="arabic simple">
 <li>Edit the libra.cfg file to set the correct serial settings and column
 headings for your data. The regular expression line (&quot;regex&quot;) defines how
 pylibra searches serial data for the data you want. See
 <a class="reference external" href="http://docs.python.org/library/re.html">http://docs.python.org/library/re.html</a> for details on regular expression formats.</li>
-<li>On Windows, double-click <tt class="docutils literal"><span class="pre">pylibra.exe</span></tt>.</li>
-<li>On other operating systems, open a shell terminal and type <tt class="docutils literal"><span class="pre">python</span> <span class="pre">pylibra.py</span></tt></li>
+<li>For the graphical user interface, run <tt class="docutils literal">pylibragui.exe</tt></li>
+<li>For the command line interface, open a command prompt window
+(<tt class="docutils literal">cmd.exe</tt>), then use <cite>cd</cite> to change directory to where pylibra is and
+run <cite>pylibra.exe</cite></li>
 </ol>
+</div>
+</div>
+<div class="section" id="linux-os-x-etc">
+<h2>Linux, OS X etc.</h2>
+<div class="section" id="id1">
+<h3>Installation</h3>
+<ol class="arabic simple">
+<li>Install pyserial. For example, on ubuntu open a terminal and type
+<tt class="docutils literal"><span class="pre">apt-get</span> install pyserial</tt></li>
+<li>Then either:<ul>
+<li>(Users) Copy the relevant (-src.zip) file from
+<a class="reference external" href="http://www.assembla.com/spaces/pylibra/documents">http://www.assembla.com/spaces/pylibra/documents</a>; or</li>
+<li>(Developers) Use the mercurial command
+<tt class="docutils literal">hg clone <span class="pre">http://hg.assembla.com/pylibra</span></tt></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="id2">
+<h3>Use</h3>
+<p>Open a shell terminal and type <tt class="docutils literal">python pylibra.py</tt></p>
+</div>
 </div>
 </div>
 <div class="section" id="developer-instructions">
 <h1>Developer instructions</h1>
 <div class="section" id="tools">
 <h2>Tools</h2>
-<p>To develop Libra you simply need a python interpreter and a couple
+<p>To develop pylibra you need a python interpreter and a couple
 of libraries:</p>
 <ul class="simple">
-<li><a class="reference external" href="http://www.python.org/">Python</a> 2.5.x interpreter. Note that 2.6 or 3.0 will not work.</li>
+<li><a class="reference external" href="http://www.python.org/">Python</a> 2.6+ interpreter. Note that 3.0+ will not work.</li>
 <li><a class="reference external" href="http://pyserial.wiki.sourceforge.net/pySerial">pySerial</a> serial port library.</li>
-<li><a class="reference external" href="http://www.py2exe.org/">py2exe</a> to create the Windows executable.</li>
-<li>A good text editor. Note that jEdit has a syntax highlighting mode for
-reStructuredText.</li>
+<li><a class="reference external" href="http://www.py2exe.org/">py2exe</a> to create the Windows executable. At the time of writing, trying to
+<cite>easy_install py2exe</cite> does not work!</li>
+<li><a class="reference external" href="http://www.wxpython.org/">wxPython</a> for the GUI. Note that <cite>easy_install wxpython</cite> does not work!
+See
+<a class="reference external" href="http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error">http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error</a></li>
+<li>A good text editor.</li>
 </ul>
 <!-- links.. -->
 </div>
@@ -365,54 +403,40 @@ reStructuredText.</li>
 <h2>Recommended workflow</h2>
 <ol class="arabic simple">
 <li>Choose a ticket to address from <a class="reference external" href="http://trac-hg.assembla.com/pylibra/report/1">http://trac-hg.assembla.com/pylibra/report/1</a></li>
-<li>Update your copy of the source using <tt class="docutils literal"><span class="pre">hg</span> <span class="pre">update</span></tt>.</li>
+<li>Update your copy of the source using <tt class="docutils literal">hg update</tt>.</li>
 <li>If at all possible, write a unit test or tests to expose the problem.</li>
 <li>Solve the problem.</li>
 <li>If you want to build a Windows executable, open a terminal and run
-<tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">py2exe</span></tt>.</li>
+<tt class="docutils literal">python setup.py py2exe</tt>.</li>
 <li>Test as much as possible.</li>
-<li>Update the <a class="reference internal" href="#documentation">documentation</a> if you make any changes noticeable to the user.</li>
-<li>Commit using <tt class="docutils literal"><span class="pre">hg</span> <span class="pre">commit</span> <span class="pre">-m</span></tt> with a helpful commit message, preferably
-referencing the ticket with <tt class="docutils literal"><span class="pre">ticket:xx</span></tt> where xx is the ticket number.</li>
-<li>Create a changegroup file using <tt class="docutils literal"><span class="pre">hg</span> <span class="pre">bundle</span> <span class="pre">--base</span> <span class="pre">BASE</span></tt> where BASE is the
+<li>Update the documentation (see below) if you make any changes noticeable to the user.</li>
+<li>Commit using <tt class="docutils literal">hg commit <span class="pre">-m</span></tt> with a helpful commit message, preferably
+referencing the ticket with <tt class="docutils literal">ticket:xx</tt> where xx is the ticket number.</li>
+<li>Create a changegroup file using <tt class="docutils literal">hg bundle <span class="pre">--base</span> BASE</tt> where BASE is the
 last revision you got from the online repository (the last before your
 changes).</li>
 <li>Upload the changegroup file to the ticket and update the ticket.</li>
 </ol>
 </div>
-<div class="section" id="documentation">
-<h2>Documentation</h2>
+<div class="section" id="documentation-process">
+<h2>Documentation process</h2>
 <ol class="arabic simple">
-<li>Update all files under the <tt class="docutils literal"><span class="pre">doc</span></tt> directory of the source.</li>
-<li>Create HTML files and PDFs as necessary. You can use the <a class="reference external" href="http://rst2a.com/create/">rst2a</a> website to
+<li>Update all files under the <tt class="docutils literal">doc</tt> directory of the source.</li>
+<li>Create HTML files and PDFs as necessary. If you have installed docutils
+(see below), use <tt class="docutils literal">rst2html.py README.txt &gt; README.html</tt> at the
+command prompt.
+Alternatively, you can use the <a class="reference external" href="http://rst2a.com/create/">rst2a</a> website to
 create both HTML and PDF files. Note that <a class="reference external" href="http://rst2a.com/create/">rst2a</a> does not convert internal
 links properly in the HTML output.</li>
 </ol>
-<p>Alternatively, if you do not want to use <a class="reference external" href="http://rst2a.com/create/">rst2a</a>, do the following:</p>
-<div class="section" id="id1">
-<h3>Windows</h3>
+<div class="section" id="installing-docutils-on-windows">
+<h3>Installing docutils (on Windows)</h3>
 <ol class="arabic simple">
 <li>Download <a class="reference external" href="http://docutils.sourceforge.net/docs/">docutils</a>.</li>
-<li>Make sure that <tt class="docutils literal"><span class="pre">C:\Python25\Tools\docutils</span></tt> is on your %PATH% environment
+<li>Make sure that <tt class="docutils literal"><span class="pre">C:\Python26\Scripts</span></tt> is on your %PATH% environment
 variable.</li>
-<li>Open a command prompt.</li>
-<li><tt class="docutils literal"><span class="pre">cd</span></tt> to the pylibra source doc directory.</li>
-<li>Type <tt class="docutils literal"><span class="pre">buildhtml.py</span></tt>.</li>
 </ol>
 </div>
-<div class="section" id="ubuntu-linux">
-<h3>Ubuntu linux</h3>
-<ol class="arabic simple">
-<li>Run <tt class="docutils literal"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">docutils</span></tt>.</li>
-<li>Open a terminal.</li>
-<li><tt class="docutils literal"><span class="pre">cd</span></tt> to the pylibra source doc directory.</li>
-<li>Type <tt class="docutils literal"><span class="pre">rst-buildhtml</span></tt></li>
-</ol>
-</div>
-</div>
-<div class="section" id="support">
-<h2>Support</h2>
-<p>Please <a class="reference external" href="http://trac-hg.assembla.com/pylibra/newticket">create a new ticket</a>.</p>
 </div>
 </div>
 </div>
