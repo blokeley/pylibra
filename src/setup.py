@@ -31,27 +31,46 @@ import zipfile
 
 import core
 
-README = os.path.normpath(os.path.join(os.getcwd(), r'..\doc\README.html'))
-DATA_FILES = ['libra.cfg', 'logging.cfg', README]
+README = os.path.abspath(r'../doc/README.html')
+ICON = os.path.abspath(r'resources/dot.ico')
+
+data_files = [
+    ['',            ['libra.cfg', 'logging.cfg', README,]],
+    ['resources',   [ICON,]],
+]
 
 # Create the executable
 setup(
-version = core.__version__,
-description = 'pylibra serial data reader',
-name='pylibragui',
-options = {'py2exe': {'bundle_files': 1}},
-console = ['pylibragui.py'],
-zipfile = None,
-data_files = [('', DATA_FILES)]
+    version = core.__version__,
+    description = 'pylibra serial data reader',
+    name ='pylibragui',
+    author = 'Tom Oakley',
+    options = {
+        'py2exe': {
+            'bundle_files': 1,
+            'dll_excludes': 'MSVCP90.dll',
+            'compressed': 1,
+        },
+    },
+    windows = ['pylibragui.py',],
+    zipfile = None,
+    data_files = data_files,
 )
 
 # Create the ZIP file to export
 os.chdir('dist')
 zfilename = 'pylibragui-%s-win32.zip' % core.__version__
-zfile = zipfile.ZipFile(zfilename, 'w')
-DATA_FILES.append('pylibragui.exe')
-for fname in DATA_FILES:
-    zfile.write(fname)
+zfile = zipfile.ZipFile(zfilename, 'w', zipfile.ZIP_DEFLATED)
+
+# Add the executable to be distributed
+data_files[0][1].insert(0, 'pylibragui.exe')
+
+for group in data_files:
+    for fname in group[1]:
+        relative_path = os.path.relpath(
+                            os.path.join(group[0],os.path.basename(fname))
+                            )
+        zfile.write(fname, relative_path)
 zfile.close()
 
 # Clean up

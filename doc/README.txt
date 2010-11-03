@@ -38,6 +38,9 @@ Installation
 #. Download the Windows executable (-win32.zip) from
    http://www.assembla.com/spaces/pylibra/documents
 #. Unzip the ZIP archive to wherever you want it.
+#. Note that, for legal licensing reasons, you may have to install 
+   a file called MSVCP90.dll which can be downloaded from 
+   http://www.microsoft.com/downloads/en/details.aspx?FamilyID=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&displaylang=en
 
 Use
 ~~~
@@ -80,15 +83,14 @@ Developer instructions
 Tools
 -----
 To develop pylibra you need a python interpreter and a couple
-of libraries:
+of libraries. If you are using Windows, use the Windows installers for 
+pyserial, py2exe and wxPython rather than setuptools/easy_install.
 
 * Python_ 2.6+ interpreter. Note that 3.0+ will not work.
-* pySerial_ serial port library.
-* py2exe_ to create the Windows executable. At the time of writing, trying to
-  `easy_install py2exe` does not work!
-* wxPython_ for the GUI. Note that `easy_install wxpython` does not work!
-  See
-  http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error
+* pySerial_ serial port library. Install pyserial using the Windows executable 
+  rather than easy_install so that py2exe can find the serial package.
+* py2exe_ to create the Windows executable.
+* wxPython_ for the GUI.
 * A good text editor.
   
 .. links..
@@ -98,8 +100,8 @@ of libraries:
 .. _wxPython: http://www.wxpython.org/
 .. _docutils: http://docutils.sourceforge.net/docs/
 
-Recommended workflow
---------------------
+Recommended work flow
+---------------------
 
 1. Choose a ticket to address from http://trac-hg.assembla.com/pylibra/report/1
 2. Update your copy of the source using ``hg update``.
@@ -133,5 +135,5 @@ Installing docutils (on Windows)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 1. Download docutils_.
-2. Make sure that ``C:\Python26\Scripts`` is on your %PATH% environment
+2. Make sure that ``C:\Python26\Scripts`` is on your ``PATH`` environment
    variable.

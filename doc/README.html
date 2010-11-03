@@ -343,6 +343,9 @@ into useful chunks, and write the data to a file.</p>
 <li>Download the Windows executable (-win32.zip) from
 <a class="reference external" href="http://www.assembla.com/spaces/pylibra/documents">http://www.assembla.com/spaces/pylibra/documents</a></li>
 <li>Unzip the ZIP archive to wherever you want it.</li>
+<li>Note that, for legal licensing reasons, you may have to install
+a file called MSVCP90.dll which can be downloaded from
+<a class="reference external" href="http://www.microsoft.com/downloads/en/details.aspx?FamilyID=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&amp;displaylang=en">http://www.microsoft.com/downloads/en/details.aspx?FamilyID=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&amp;displaylang=en</a></li>
 </ol>
 </div>
 <div class="section" id="use">
@@ -386,21 +389,20 @@ run <cite>pylibra.exe</cite></li>
 <div class="section" id="tools">
 <h2>Tools</h2>
 <p>To develop pylibra you need a python interpreter and a couple
-of libraries:</p>
+of libraries. If you are using Windows, use the Windows installers for
+pyserial, py2exe and wxPython rather than setuptools/easy_install.</p>
 <ul class="simple">
 <li><a class="reference external" href="http://www.python.org/">Python</a> 2.6+ interpreter. Note that 3.0+ will not work.</li>
-<li><a class="reference external" href="http://pyserial.wiki.sourceforge.net/pySerial">pySerial</a> serial port library.</li>
-<li><a class="reference external" href="http://www.py2exe.org/">py2exe</a> to create the Windows executable. At the time of writing, trying to
-<cite>easy_install py2exe</cite> does not work!</li>
-<li><a class="reference external" href="http://www.wxpython.org/">wxPython</a> for the GUI. Note that <cite>easy_install wxpython</cite> does not work!
-See
-<a class="reference external" href="http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error">http://stackoverflow.com/questions/477573/easyinstall-of-wxpython-has-setup-script-error</a></li>
+<li><a class="reference external" href="http://pyserial.wiki.sourceforge.net/pySerial">pySerial</a> serial port library. Install pyserial using the Windows executable
+rather than easy_install so that py2exe can find the serial package.</li>
+<li><a class="reference external" href="http://www.py2exe.org/">py2exe</a> to create the Windows executable.</li>
+<li><a class="reference external" href="http://www.wxpython.org/">wxPython</a> for the GUI.</li>
 <li>A good text editor.</li>
 </ul>
 <!-- links.. -->
 </div>
-<div class="section" id="recommended-workflow">
-<h2>Recommended workflow</h2>
+<div class="section" id="recommended-work-flow">
+<h2>Recommended work flow</h2>
 <ol class="arabic simple">
 <li>Choose a ticket to address from <a class="reference external" href="http://trac-hg.assembla.com/pylibra/report/1">http://trac-hg.assembla.com/pylibra/report/1</a></li>
 <li>Update your copy of the source using <tt class="docutils literal">hg update</tt>.</li>
@@ -433,7 +435,7 @@ links properly in the HTML output.</li>
 <h3>Installing docutils (on Windows)</h3>
 <ol class="arabic simple">
 <li>Download <a class="reference external" href="http://docutils.sourceforge.net/docs/">docutils</a>.</li>
-<li>Make sure that <tt class="docutils literal"><span class="pre">C:\Python26\Scripts</span></tt> is on your %PATH% environment
+<li>Make sure that <tt class="docutils literal"><span class="pre">C:\Python26\Scripts</span></tt> is on your <tt class="docutils literal">PATH</tt> environment
 variable.</li>
 </ol>
 </div>
