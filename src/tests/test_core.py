@@ -18,7 +18,6 @@
 
 """Unit tests for core module."""
 
-from __future__ import with_statement
 import csv
 import os
 import unittest
@@ -56,39 +55,6 @@ class TestWritetofile(unittest.TestCase):
 
         self.assertEqual(result, [self.stampedrow,])
 
-    def test_multiple_rows(self):
-        """Tests multiple rows in 1 write."""
-        # The first row should be rejected because we only write the last
-        # complete row of data to disk
-        inputdata = [self.row, self.row]
-        myapp = core.DataManager(self._FILENAME)
-        myapp.write(inputdata)
-
-        with open(self._FILENAME) as f:
-            dataReader = csv.reader(f)
-            result = []
-            for row in dataReader:
-                result.append(row)
-
-        # Remember, only 1 row (the last) should be written to disk
-        expected = [self.stampedrow,]
-
-        self.assertEqual(result, expected)
-
-    def test_multiple_writes(self):
-        """Tests multiple writes."""
-        inputdata = [self.row]
-        myapp = core.DataManager(self._FILENAME)
-        myapp.write(inputdata)
-        myapp.write(inputdata)
-
-        with open(self._FILENAME) as f:
-            dataReader = csv.reader(f)
-            result = []
-            for row in dataReader:
-                result.append(row)
-
-        self.assertEqual(result, [self.stampedrow, self.stampedrow])
 
 if __name__ == "__main__":
     unittest.main()

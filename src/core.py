@@ -19,11 +19,11 @@
 """Core libra functions."""
 import ConfigParser
 import csv
+import datetime
 import logging
 import os
 import serial
 import sys
-import time
 
 import parsing
 import utils
@@ -32,10 +32,13 @@ import utils
 __version__ = '0.5.0'
 
 
-def timestamp(mylist):
+def timestamp(mylist, now=None):
     """Inserts a timestamp string at the beginning of the given list."""
+    if now is None:
+        now = datetime.datetime.now()
+    
     mylist = list(mylist)
-    mylist.insert(0, time.strftime('%Y-%m-%d %H:%M:%S'))
+    mylist.insert(0, now.isoformat(' '))
     return mylist
 
 
@@ -144,12 +147,12 @@ def write_to_file(filename, data):
     filename - the filename to write to
     data - a sequence of sequences (e.g. a list of lists).
     """
-    # Take last reading only
-    lastdata = data[-1]
+    data = list(data)
+    
+    # Timestamp the data
+    for rownum in range(len(data)):
+        data[rownum] = timestamp(data[rownum])
 
-    # Add a timestamp
-    lastdata = timestamp(lastdata)
-
-    with open(filename, 'a') as outFile:
-        writer = csv.writer(outFile, lineterminator='\n')
-        writer.writerow(lastdata)
+    with open(filename, 'a') as outfile:
+        writer = csv.writer(outfile, lineterminator='\n')
+        writer.writerows(data)
