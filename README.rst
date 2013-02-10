@@ -3,7 +3,7 @@ pylibra documentation
 =====================
 
 :Author: Tom Oakley
-:Copyright: Copyright (c) 2008, 2009, 2010  Tom Oakley.
+:Copyright: Copyright (c) 2008 - 2013 Tom Oakley.
 
 ..
     Permission is granted to copy, distribute and/or modify this document
@@ -26,7 +26,7 @@ Support
 -------
 If you notice any problems, please `create a new ticket`_.
 
-.. _create a new ticket: http://trac-hg.assembla.com/pylibra/newticket
+.. _create a new ticket: https://github.com/blokeley/pylibra/issues/new
 
 
 Windows
@@ -36,7 +36,9 @@ Installation
 ~~~~~~~~~~~~
 
 #. Download the Windows executable (-win32.zip) from
-   http://www.assembla.com/spaces/pylibra/documents
+   https://docs.google.com/file/d/0Bzv_VsGhPlilOWxyWWxZeW43YkE/edit?usp=sharing 
+   Ensure you download the entire ZIP archive, not individual files. To do this 
+   from Google Drive, select `File > Download`.
 #. Unzip the ZIP archive to wherever you want it.
 #. Note that, for legal licensing reasons, you may have to install 
    a file called MSVCP90.dll which can be downloaded from 
@@ -45,37 +47,36 @@ Installation
 Use
 ~~~
 
-1. Edit the libra.cfg file to set the correct serial settings and column
-   headings for your data. The regular expression line ("regex") defines how
-   pylibra searches serial data for the data you want. See
+1. edit the libra.cfg file to set the correct serial settings and column
+   headings for your data. the regular expression line ("regex") defines how
+   pylibra searches serial data for the data you want. see
    http://docs.python.org/library/re.html for details on regular expression formats.
-2. For the graphical user interface, run ``pylibragui.exe``
-3. For the command line interface, open a command prompt window 
+2. for the graphical user interface, run ``pylibragui.exe``
+3. for the command line interface, open a command prompt window 
    (``cmd.exe``), then use `cd` to change directory to where pylibra is and 
    run `pylibra.exe`
+4. select `start` to start polling the serial port for data. data are 
+   automatically saved in a file called `data.csv` in the current working directory.
 
-Linux, OS X etc.
+linux, os x etc.
 ----------------
 
-Installation
+installation
 ~~~~~~~~~~~~
 
-1. Install pyserial. For example, on ubuntu open a terminal and type
-   ``apt-get install pyserial``
+1. install pyserial. for example, on ubuntu or debian open a terminal as root 
+   and type ``apt-get install pyserial``
+2. run `git clone https://github.com/blokeley/pylibra.git`
 
-2. Then either:
-
-   * (Users) Copy the relevant (-src.zip) file from
-     http://www.assembla.com/spaces/pylibra/documents; or
-   * (Developers) Use the mercurial command
-     ``hg clone http://hg.assembla.com/pylibra``
-
-Use
+use
 ~~~
 
-Open a shell terminal and type ``python pylibra.py``
+To run the command line interface, open a shell terminal, `cd` to the 
+directory containing pylibra and type ``python pylibra.py``
 
-
+To run the graphical user interface, either double-click on `pylibragui.py` 
+in a graphical file manager, or open a shell terminal, `cd` to the 
+directory containing pylibra and type ``python pylibragui.py``
 
 Developer instructions
 ======================
@@ -86,7 +87,7 @@ To develop pylibra you need a python interpreter and a couple
 of libraries. If you are using Windows, use the Windows installers for 
 pyserial, py2exe and wxPython rather than setuptools/easy_install.
 
-* Python_ 2.6+ interpreter. Note that 3.0+ will not work.
+* Python_ 2.6+ interpreter. Note that 3.0+ has not been tested and probably will not work.
 * pySerial_ serial port library. Install pyserial using the Windows executable 
   rather than easy_install so that py2exe can find the serial package.
 * py2exe_ to create the Windows executable.
@@ -103,33 +104,21 @@ pyserial, py2exe and wxPython rather than setuptools/easy_install.
 Recommended work flow
 ---------------------
 
-1. Choose a ticket to address from http://trac-hg.assembla.com/pylibra/report/1
-2. Update your copy of the source using ``hg update``.
-3. If at all possible, write a unit test or tests to expose the problem.
-4. Solve the problem.
-5. If you want to build a Windows executable, open a terminal and run
+1. Choose a ticket to address from https://github.com/blokeley/pylibra/issues
+2. Make a server-side clone on `github`
+3. Clone from your server-side repo using `git clone https://github.com/USER/pylibra.git` 
+   where USER is your user name
+4. If at all possible, write a unit test or tests to expose the problem.
+5. Create a feature branch on your local repo using `git checkout -n BRANCHNAME` 
+6. Solve the problem.
+7. If you want to build a Windows executable, open a terminal and run
    ``python setup.py py2exe``.
-6. Test as much as possible.
-7. Update the documentation (see below) if you make any changes noticeable to the user.
-8. Commit using ``hg commit -m`` with a helpful commit message, preferably
-   referencing the ticket with ``ticket:xx`` where xx is the ticket number.
-9. Create a changegroup file using ``hg bundle --base BASE`` where BASE is the
-   last revision you got from the online repository (the last before your
-   changes).
-10. Upload the changegroup file to the ticket and update the ticket.
-
-Documentation process
----------------------
-
-1. Update all files under the ``doc`` directory of the source.
-2. Create HTML files and PDFs as necessary. If you have installed docutils 
-   (see below), use ``rst2html.py README.txt > README.html`` at the 
-   command prompt.
-   Alternatively, you can use the rst2a_ website to
-   create both HTML and PDF files. Note that rst2a_ does not convert internal
-   links properly in the HTML output.
-
-.. _rst2a: http://rst2a.com/create/
+8. Test as much as possible.
+9. Update the documentation if you make any changes noticeable to the user.
+10. Commit using ``git commit -m`` with a helpful commit message, preferably
+    referencing the ticket with ``#xx`` where xx is the ticket number.
+11. Push your changes to your server-side repo using `git push`
+12. Create a `pull request <https://help.github.com/articles/using-pull-requests>`_ on `github`.
 
 Installing docutils (on Windows)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
