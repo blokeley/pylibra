@@ -35,14 +35,10 @@ Windows
 Installation
 ~~~~~~~~~~~~
 
-#. Download the Windows executable (-win32.zip) from
-   https://docs.google.com/file/d/0Bzv_VsGhPlilOWxyWWxZeW43YkE/edit?usp=sharing 
-   Ensure you download the entire ZIP archive, not individual files. To do this 
-   from Google Drive, select `File > Download`.
-#. Unzip the ZIP archive to wherever you want it.
-#. Note that, for legal licensing reasons, you may have to install 
-   a file called MSVCP90.dll which can be downloaded from 
-   http://www.microsoft.com/downloads/en/details.aspx?FamilyID=9b2da534-3e03-4391-8a4d-074b9f2bc1bf&displaylang=en
+1. ``pip install py2exe pyserial``
+2. ``git clone https://github.com/blokeley/pylibra.git``
+3. ``cd pylibra``
+4. ``python setup.py py2exe``
 
 Use
 ~~~
@@ -54,28 +50,28 @@ Use
 2. for the graphical user interface, run ``pylibragui.exe``
 3. for the command line interface, open a command prompt window 
    (``cmd.exe``), then use `cd` to change directory to where pylibra is and 
-   run `pylibra.exe`
+   run ``pylibra.exe``
 4. select `start` to start polling the serial port for data. data are 
    automatically saved in a file called `data.csv` in the current working directory.
 
 linux, os x etc.
 ----------------
 
-installation
+Installation
 ~~~~~~~~~~~~
 
 1. install pyserial. for example, on ubuntu or debian open a terminal as root 
    and type ``apt-get install pyserial``
-2. run `git clone https://github.com/blokeley/pylibra.git`
+2. run ``git clone https://github.com/blokeley/pylibra.git``
 
-use
+Use
 ~~~
 
-To run the command line interface, open a shell terminal, `cd` to the 
+To run the command line interface, open a shell terminal, ``cd`` to the 
 directory containing pylibra and type ``python pylibra.py``
 
-To run the graphical user interface, either double-click on `pylibragui.py` 
-in a graphical file manager, or open a shell terminal, `cd` to the 
+To run the graphical user interface, either double-click on ``pylibragui.py`` 
+in a graphical file manager, or open a shell terminal, ``cd`` to the 
 directory containing pylibra and type ``python pylibragui.py``
 
 Developer instructions
@@ -106,10 +102,10 @@ Recommended work flow
 
 1. Choose a ticket to address from https://github.com/blokeley/pylibra/issues
 2. Make a server-side clone on `github`
-3. Clone from your server-side repo using `git clone https://github.com/USER/pylibra.git` 
+3. Clone from your server-side repo using ``git clone https://github.com/USER/pylibra.git`` 
    where USER is your user name
 4. If at all possible, write a unit test or tests to expose the problem.
-5. Create a feature branch on your local repo using `git checkout -n BRANCHNAME` 
+5. Create a feature branch on your local repo using ``git checkout -n BRANCHNAME`` 
 6. Solve the problem.
 7. If you want to build a Windows executable, open a terminal and run
    ``python setup.py py2exe``.
